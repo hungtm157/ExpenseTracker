@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,15 +12,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ExpenseTracker">
+
+        <!-- Entry point -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Auth -->
+        <activity android:name=".features.auth.login.LoginActivity" />
+        <activity android:name=".features.auth.register.RegisterActivity" />
+
+        <!-- Home -->
+        <activity android:name=".features.home.HomeActivity" />
+
+        <!-- Profile -->
+        <activity android:name=".features.profile.ProfileActivity" />
+
     </application>
 
 </manifest>
