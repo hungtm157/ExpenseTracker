@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1075433292104",
+    "project_id": "monety-datn",
+    "storage_bucket": "monety-datn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075433292104:android:dfba6dbfae81f0a038b37d",
+        "android_client_info": {
+          "package_name": "com.example.expensetracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1075433292104-3sdhhb368s8i03ktao7kkkv7ak4j4mgr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzit2GgGH68ebCxrlrI8hEn6340TvaoB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1075433292104-3sdhhb368s8i03ktao7kkkv7ak4j4mgr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
