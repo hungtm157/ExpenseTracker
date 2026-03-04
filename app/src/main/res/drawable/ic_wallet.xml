@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+    <!-- Outer circle ring -->
+    <path
+        android:pathData="M40,4 C55.464,4 68,16.536 68,32 C68,47.464 55.464,60 40,60 C24.536,60 12,47.464 12,32 C12,16.536 24.536,4 40,4Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:fillColor="@android:color/transparent" />
+    <!-- Wallet body -->
+    <path
+        android:pathData="M27,26 L53,26 C54.1,26 55,26.9 55,28 L55,44 C55,45.1 54.1,46 53,46 L27,46 C25.9,46 25,45.1 25,44 L25,28 C25,26.9 25.9,26 27,26Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent" />
+    <!-- Wallet flap -->
+    <path
+        android:pathData="M25,31 L55,31"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+    <!-- Wallet coin slot -->
+    <path
+        android:pathData="M47,38 C47,36.9 47.9,36 49,36 L55,36 L55,41 L49,41 C47.9,41 47,40.1 47,39Z"
+        android:fillColor="#FFFFFF" />
+</vector>
