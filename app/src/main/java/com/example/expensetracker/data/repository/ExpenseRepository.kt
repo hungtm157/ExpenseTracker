@@ -45,22 +45,22 @@ class ExpenseRepository(private val db: AppDatabase) {
     // ─── Mapper helpers ───────────────────────────────────────────────────────
 
     private fun Expense.toEntity() = ExpenseEntity(
-        id       = id,
-        title    = title,
-        amount   = amount,
+        id = id,
+        title = title,
+        amount = amount,
         category = category,
-        note     = note,
-        date     = date,
-        userId   = userId
+        note = note,
+        date = date,
+        userId = userId
     )
 
     private fun ExpenseEntity.toDomain() = Expense(
-        id       = id,
-        title    = title,
-        amount   = amount,
+        id = id,
+        title = title,
+        amount = amount,
         category = category,
-        note     = note,
-        date     = date,
-        userId   = userId
+        note = note,
+        date = date,
+        userId = userId
     )
 }

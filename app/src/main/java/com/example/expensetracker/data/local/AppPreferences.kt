@@ -15,8 +15,8 @@ class AppPreferences(context: Context) {
     companion object {
         private const val PREF_NAME = "expense_tracker_prefs"
 
-        private const val KEY_USER_ID    = "user_id"
-        private const val KEY_USER_NAME  = "user_name"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_NAME = "user_name"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
     }

@@ -27,8 +27,8 @@ class HomeActivity : BaseActivity(R.layout.activity_home), HomeListener {
 
     override fun initViews() {
         recyclerView = findViewById(R.id.recyclerView)
-        progressBar  = findViewById(R.id.progressBar)
-        tvEmpty      = findViewById(R.id.tvEmpty)
+        progressBar = findViewById(R.id.progressBar)
+        tvEmpty = findViewById(R.id.tvEmpty)
 
         adapter = HomeAdapter { expense ->
             // TODO: mở màn hình chi tiết chi tiêu
@@ -36,9 +36,9 @@ class HomeActivity : BaseActivity(R.layout.activity_home), HomeListener {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        val db         = AppDatabase.getInstance(this)
+        val db = AppDatabase.getInstance(this)
         val repository = ExpenseRepository(db)
-        controller     = HomeController(repository, this)
+        controller = HomeController(repository, this)
     }
 
     override fun initObservers() {
