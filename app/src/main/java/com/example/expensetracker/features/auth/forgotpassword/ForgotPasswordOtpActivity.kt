@@ -1,6 +1,5 @@
-package com.example.expensetracker.features.auth.otp
+package com.example.expensetracker.features.auth.forgotpassword
 
-import android.content.Intent
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,18 +12,13 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
-import com.example.expensetracker.features.auth.login.LoginActivity
 
-/**
- * OtpActivity — Màn xác thực OTP.
- * Nhận fullName, email, password từ RegisterActivity qua Intent extras.
- */
-class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
+import android.content.Intent
+
+class ForgotPasswordOtpActivity : BaseActivity(R.layout.activity_otp), ForgotPasswordOtpListener {
 
     companion object {
-        const val EXTRA_FULL_NAME = "extra_full_name"
         const val EXTRA_EMAIL = "extra_email"
-        const val EXTRA_PASSWORD = "extra_password"
     }
 
     private lateinit var ivBack: ImageView
@@ -40,17 +34,13 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     private lateinit var btnVerify: Button
     private lateinit var tvResendOtp: TextView
 
-    private lateinit var fullName: String
     private lateinit var email: String
-    private lateinit var password: String
-
-    private val controller = OtpController(this)
+    private val controller = ForgotPasswordOtpController(this)
     private var countDownTimer: CountDownTimer? = null
+    private var canResend = false
 
     override fun initViews() {
-        fullName = intent.getStringExtra(EXTRA_FULL_NAME) ?: ""
         email = intent.getStringExtra(EXTRA_EMAIL) ?: ""
-        password = intent.getStringExtra(EXTRA_PASSWORD) ?: ""
 
         ivBack = findViewById(R.id.ivBack)
         tvEmailHint = findViewById(R.id.tvEmailHint)
@@ -72,54 +62,50 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     override fun initListeners() {
         ivBack.setOnClickListener { finish() }
 
-        // Auto-focus: khi nhập xong 1 ô → focus sang ô kế
         setupOtpBoxes()
 
         btnVerify.setOnClickListener {
-            val otp = getOtpCode()
-            controller.verifyOtp(fullName, email, password, otp)
+            controller.verifyOtp(email, getOtpCode())
         }
 
         tvResendOtp.setOnClickListener {
-            Toast.makeText(this, "Vui lòng liên hệ hỗ trợ qua email", Toast.LENGTH_SHORT).show()
+            if (canResend) {
+                controller.resendOtp(email)
+                canResend = false
+                startCountdown()
+            } else {
+                Toast.makeText(this, "Vui lòng chờ hết thời gian đếm ngược", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    /** Lấy mã OTP từ 6 ô edit text */
     private fun getOtpCode(): String =
         "${etOtp1.text}${etOtp2.text}${etOtp3.text}${etOtp4.text}${etOtp5.text}${etOtp6.text}"
 
-    /** Đếm ngược 60 giây */
     private fun startCountdown() {
         countDownTimer?.cancel()
+        canResend = false
         countDownTimer = object : CountDownTimer(60_000, 1_000) {
             override fun onTick(millisUntilFinished: Long) {
                 val sec = millisUntilFinished / 1000
                 tvCountdown.text = "0:%02d".format(sec)
             }
-
             override fun onFinish() {
                 tvCountdown.text = "0:00"
+                canResend = true
             }
         }.start()
     }
 
-    /** Tự động chuyển focus khi nhập đủ 1 chữ số, hoặc lùi khi xóa */
     private fun setupOtpBoxes() {
         val boxes = listOf(etOtp1, etOtp2, etOtp3, etOtp4, etOtp5, etOtp6)
-
         boxes.forEachIndexed { index, box ->
             box.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) {
-                    if (s?.length == 1) {
-                        // Chuyển sang ô tiếp theo
-                        if (index < boxes.size - 1) boxes[index + 1].requestFocus()
-                    } else if (s?.isEmpty() == true) {
-                        // Lùi về ô trước
-                        if (index > 0) boxes[index - 1].requestFocus()
-                    }
+                    if (s?.length == 1 && index < boxes.size - 1) boxes[index + 1].requestFocus()
+                    else if (s?.isEmpty() == true && index > 0) boxes[index - 1].requestFocus()
                 }
             })
         }
@@ -130,13 +116,13 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
         countDownTimer?.cancel()
     }
 
-    // ─── OtpListener ─────────────────────────────────────────────────────────
-
-    override fun onVerifySuccess() {
-        Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_LONG).show()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    override fun onVerifySuccess(message: String, token: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, ResetPasswordActivity::class.java).apply {
+            putExtra(ResetPasswordActivity.EXTRA_TOKEN, token)
+        }
         startActivity(intent)
+        finish()
     }
 
     override fun onVerifyFailure(errorMessage: String) {
@@ -146,5 +132,13 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     override fun onVerifyLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnVerify.isEnabled = !isLoading
+    }
+
+    override fun onResendSuccess(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResendFailure(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 }
