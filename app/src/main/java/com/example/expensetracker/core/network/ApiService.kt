@@ -2,6 +2,9 @@ package com.example.expensetracker.core.network
 
 import com.example.expensetracker.data.models.ForgotPasswordRequest
 import com.example.expensetracker.data.models.ForgotPasswordResponse
+import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpRequest
+import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpResponse
+import com.example.expensetracker.data.models.ResetPasswordRequest
 import com.example.expensetracker.data.models.LoginRequest
 import com.example.expensetracker.data.models.LoginResponse
 import com.example.expensetracker.data.models.RegisterRequest
@@ -31,6 +34,15 @@ interface ApiService {
 
     @POST("api/v1/auth/forgot-password/send-otp")
     suspend fun forgotPasswordSendOtp(@Body request: ForgotPasswordRequest): Response<ForgotPasswordResponse>
+
+    @POST("api/v1/auth/forgot-password/verify-otp")
+    suspend fun forgotPasswordVerifyOtp(@Body request: ForgotPasswordVerifyOtpRequest): Response<ForgotPasswordVerifyOtpResponse>
+
+    @POST("api/v1/auth/forgot-password/resend-otp")
+    suspend fun forgotPasswordResendOtp(@Body request: ForgotPasswordRequest): Response<ForgotPasswordResponse>
+
+    @POST("api/v1/auth/reset-password")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<ForgotPasswordResponse>
 
     @GET("ping")
     suspend fun ping(): Any

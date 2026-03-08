@@ -248,9 +248,10 @@
                     android:id="@+id/tvResendOtp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Liên hệ hỗ trợ"
+                    android:text="Gửi lại mã"
                     android:textColor="@color/green_mid"
                     android:textSize="13sp"
+                    android:layout_marginStart="10dp"
                     android:textStyle="bold"
                     android:clickable="true"
                     android:focusable="true" />
@@ -262,7 +263,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="#33FFFFFF"
+            android:background="@drawable/bg_hint_banner"
             android:padding="14dp"
             android:layout_marginTop="20dp">
 

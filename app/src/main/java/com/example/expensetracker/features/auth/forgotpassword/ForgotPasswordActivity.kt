@@ -1,5 +1,6 @@
 package com.example.expensetracker.features.auth.forgotpassword
 
+import android.content.Intent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -35,8 +36,11 @@ class ForgotPasswordActivity : BaseActivity(R.layout.activity_forgot_password), 
     }
 
     override fun onSendOtpSuccess(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        finish()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, ForgotPasswordOtpActivity::class.java).apply {
+            putExtra(ForgotPasswordOtpActivity.EXTRA_EMAIL, etEmail.text.toString().trim())
+        }
+        startActivity(intent)
     }
 
     override fun onSendOtpFailure(errorMessage: String) {
