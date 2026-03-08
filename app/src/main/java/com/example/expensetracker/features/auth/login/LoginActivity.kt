@@ -12,6 +12,7 @@ import android.widget.Toast
 import com.example.expensetracker.App
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
+import com.example.expensetracker.features.auth.forgotpassword.ForgotPasswordActivity
 import com.example.expensetracker.features.auth.register.RegisterActivity
 import com.example.expensetracker.features.home.HomeActivity
 
@@ -66,7 +67,7 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
         }
 
         tvForgotPassword.setOnClickListener {
-            Toast.makeText(this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
         tvGoToRegister.setOnClickListener {

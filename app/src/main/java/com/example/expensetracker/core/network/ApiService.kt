@@ -1,10 +1,13 @@
 package com.example.expensetracker.core.network
 
+import com.example.expensetracker.data.models.ForgotPasswordRequest
+import com.example.expensetracker.data.models.ForgotPasswordResponse
 import com.example.expensetracker.data.models.LoginRequest
 import com.example.expensetracker.data.models.LoginResponse
 import com.example.expensetracker.data.models.RegisterRequest
 import com.example.expensetracker.data.models.RegisterResponse
 import com.example.expensetracker.data.models.VerifyOtpRequest
+import com.example.expensetracker.data.models.VerifyOtpResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,7 +27,10 @@ interface ApiService {
     suspend fun sendOtp(@Body request: RegisterRequest): Response<RegisterResponse>
 
     @POST("api/v1/auth/register/verify-otp")
-    suspend fun verifyOtp(@Body request: VerifyOtpRequest): Response<RegisterResponse>
+    suspend fun verifyOtp(@Body request: VerifyOtpRequest): Response<VerifyOtpResponse>
+
+    @POST("api/v1/auth/forgot-password/send-otp")
+    suspend fun forgotPasswordSendOtp(@Body request: ForgotPasswordRequest): Response<ForgotPasswordResponse>
 
     @GET("ping")
     suspend fun ping(): Any

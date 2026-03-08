@@ -133,7 +133,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     // ─── OtpListener ─────────────────────────────────────────────────────────
 
     override fun onVerifySuccess() {
-        Toast.makeText(this, "Đăng ký thành công! Hãy đăng nhập.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_LONG).show()
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

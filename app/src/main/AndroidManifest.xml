@@ -31,6 +31,8 @@
         </activity>
         <activity android:name=".features.auth.register.RegisterActivity" />
         <activity android:name=".features.auth.otp.OtpActivity" />
+        <activity android:name=".features.auth.forgotpassword.ForgotPasswordActivity" />
+
 
 
 
