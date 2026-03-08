@@ -6,6 +6,14 @@
         <item name="colorSecondary">@color/green_start</item>
     </style>
 
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/green_mid</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
+    </style>
+
     <style name="Theme.ExpenseTracker" parent="Base.Theme.ExpenseTracker">
         <!-- Tùy chỉnh màu sắc Bottom Navigation -->
         <item name="colorOnSurfaceVariant">@color/nav_inactive</item>

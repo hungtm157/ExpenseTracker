@@ -10,7 +10,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="20dp"
+        android:paddingBottom="70dp"
         android:clipToPadding="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -302,7 +302,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="@color/white"
                     android:orientation="vertical"
                     android:padding="20dp">
@@ -445,7 +445,7 @@
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_gravity="bottom"
         android:backgroundTint="@color/white"
         app:fabAlignmentMode="center"
@@ -473,10 +473,11 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
         android:src="@drawable/ic_add"
         app:backgroundTint="#00C896"
         app:elevation="12dp"
-        app:fabCustomSize="64dp"
+        app:fabCustomSize="56dp"
         app:layout_anchor="@id/bottomAppBar"
         app:maxImageSize="32dp"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.App.FAB.Circle"
