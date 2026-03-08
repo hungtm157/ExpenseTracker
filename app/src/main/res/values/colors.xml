@@ -9,4 +9,6 @@
     <color name="text_secondary">#757575</color>
     <color name="text_primary">#212121</color>
     <color name="divider_color">#E0E0E0</color>
+    <color name="nav_active">#00C896</color>
+    <color name="nav_inactive">#9E9E9E</color>
 </resources>
