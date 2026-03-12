@@ -1,20 +1,23 @@
 package com.example.expensetracker.core.network
 
+import com.example.expensetracker.data.models.CategoryListResponse
 import com.example.expensetracker.data.models.ForgotPasswordRequest
 import com.example.expensetracker.data.models.ForgotPasswordResponse
 import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpRequest
 import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpResponse
-import com.example.expensetracker.data.models.ResetPasswordRequest
 import com.example.expensetracker.data.models.LoginRequest
 import com.example.expensetracker.data.models.LoginResponse
 import com.example.expensetracker.data.models.RegisterRequest
 import com.example.expensetracker.data.models.RegisterResponse
+import com.example.expensetracker.data.models.ResetPasswordRequest
 import com.example.expensetracker.data.models.VerifyOtpRequest
 import com.example.expensetracker.data.models.VerifyOtpResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 /**
  * ApiService — Interface định nghĩa các API endpoint.
@@ -43,6 +46,16 @@ interface ApiService {
 
     @POST("api/v1/auth/reset-password")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<ForgotPasswordResponse>
+
+    // ─── Categories ──────────────────────────────────────────────────────────
+
+    @GET("api/v1/categories")
+    suspend fun getCategories(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 100,
+        @Query("type") type: String
+    ): Response<CategoryListResponse>
 
     @GET("ping")
     suspend fun ping(): Any
