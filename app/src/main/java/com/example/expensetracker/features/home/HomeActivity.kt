@@ -1,62 +1,68 @@
 package com.example.expensetracker.features.home
 
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
-import com.example.expensetracker.data.local.AppDatabase
-import com.example.expensetracker.data.models.Expense
-import com.example.expensetracker.data.repository.ExpenseRepository
-import com.example.expensetracker.features.home.HomeController.HomeListener
+import com.example.expensetracker.features.more.MoreFragment
+import com.example.expensetracker.features.plan.PlanFragment
+import com.example.expensetracker.features.statistics.StatisticsFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
- * HomeActivity — View cho màn hình Trang chủ / Dashboard.
+ * HomeActivity — Container chính của ứng dụng.
+ * Quản lý Bottom Navigation và swap Fragment theo từng tab.
  */
-class HomeActivity : BaseActivity(R.layout.activity_home), HomeListener {
+class HomeActivity : BaseActivity(R.layout.activity_home) {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvEmpty: TextView
-
-    private lateinit var adapter: HomeAdapter
-    private lateinit var controller: HomeController
+    private lateinit var bottomNavigation: BottomNavigationView
+    private lateinit var fab: FloatingActionButton
 
     override fun initViews() {
-        recyclerView = findViewById(R.id.recyclerView)
-        progressBar = findViewById(R.id.progressBar)
-        tvEmpty = findViewById(R.id.tvEmpty)
+        bottomNavigation = findViewById(R.id.bottomNavigation)
+        fab = findViewById(R.id.fab)
 
-        adapter = HomeAdapter { expense ->
-            // TODO: mở màn hình chi tiết chi tiêu
+        // Chỉ load fragment mặc định khi không có trạng thái được khôi phục
+        // (tránh tạo lại fragment khi xoay màn hình)
+        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
+            switchFragment(HomeFragment())
+            bottomNavigation.selectedItemId = R.id.nav_home
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
-
-        val db = AppDatabase.getInstance(this)
-        val repository = ExpenseRepository(db)
-        controller = HomeController(repository, this)
     }
 
-    override fun initObservers() {
-        controller.loadExpenses()
+    override fun initListeners() {
+        bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    switchFragment(HomeFragment())
+                    true
+                }
+                R.id.nav_statistics -> {
+                    switchFragment(StatisticsFragment())
+                    true
+                }
+                R.id.nav_plan -> {
+                    switchFragment(PlanFragment())
+                    true
+                }
+                R.id.nav_more -> {
+                    switchFragment(MoreFragment())
+                    true
+                }
+                else -> false
+            }
+        }
+
+        fab.setOnClickListener {
+            Toast.makeText(this, "Ghi giao dịch mới", Toast.LENGTH_SHORT).show()
+            // TODO: startActivity(Intent(this, AddTransactionActivity::class.java))
+        }
     }
 
-    // ─── HomeListener ────────────────────────────────────────────────────────
-
-    override fun onExpensesLoaded(expenses: List<Expense>) {
-        adapter.updateData(expenses)
-        tvEmpty.visibility = if (expenses.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    override fun onLoading(isLoading: Boolean) {
-        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-    }
-
-    override fun onError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun switchFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
     }
 }

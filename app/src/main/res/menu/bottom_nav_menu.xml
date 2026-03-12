@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/title_home" />
+    <item
+        android:id="@+id/nav_statistics"
+        android:icon="@drawable/ic_statistics"
+        android:title="@string/title_statistics" />
+    <item
+        android:id="@+id/nav_placeholder"
+        android:enabled="false"
+        android:title="" />
+    <item
+        android:id="@+id/nav_plan"
+        android:icon="@drawable/ic_plan"
+        android:title="@string/title_plan" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_more"
+        android:title="@string/title_more" />
+</menu>

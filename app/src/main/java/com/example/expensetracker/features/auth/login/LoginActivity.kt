@@ -53,6 +53,8 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
     }
 
     override fun initListeners() {
+        if (isFinishing) return
+
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
@@ -91,6 +93,7 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
     }
 
     override fun onLoginLoading(isLoading: Boolean) {
+        if (isFinishing) return
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnLogin.isEnabled = !isLoading
     }
