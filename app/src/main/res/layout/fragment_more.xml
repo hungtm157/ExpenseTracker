@@ -366,6 +366,46 @@
                     android:layout_marginHorizontal="16dp"
                     android:background="#F2F2F2" />
 
+                <!-- Quản lý ví -->
+                <LinearLayout
+                    android:id="@+id/menuWallet"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_wallet_more_screen"
+                        app:tint="@color/text_primary"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:text="@string/more_menu_wallet"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:rotation="180"
+                        android:src="@drawable/ic_back"
+                        app:tint="@color/text_hint"
+                        tools:ignore="ContentDescription" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="#F2F2F2" />
+
                 <!-- Thông báo -->
                 <LinearLayout
                     android:id="@+id/menuNotifications"
@@ -479,6 +519,42 @@
                         app:tint="@color/text_hint"
                         tools:ignore="ContentDescription" />
                 </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Card Đăng xuất -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_card_white_rounded"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_sign_out"
+                    app:tint="#FF5252"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/more_logout"
+                    android:textColor="#FF5252"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
