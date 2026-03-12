@@ -1,15 +1,18 @@
 package com.example.expensetracker.features.home
 
-import android.os.Bundle
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
+import com.example.expensetracker.features.more.MoreFragment
+import com.example.expensetracker.features.plan.PlanFragment
+import com.example.expensetracker.features.statistics.StatisticsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
- * HomeActivity — Màn hình chính của ứng dụng.
- * Quản lý giao diện Tổng quan và Navigation.
+ * HomeActivity — Container chính của ứng dụng.
+ * Quản lý Bottom Navigation và swap Fragment theo từng tab.
  */
 class HomeActivity : BaseActivity(R.layout.activity_home) {
 
@@ -20,27 +23,31 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         bottomNavigation = findViewById(R.id.bottomNavigation)
         fab = findViewById(R.id.fab)
 
-        // Tắt animation shift của BottomNavigationView nếu cần
-        bottomNavigation.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED
+        // Chỉ load fragment mặc định khi không có trạng thái được khôi phục
+        // (tránh tạo lại fragment khi xoay màn hình)
+        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
+            switchFragment(HomeFragment())
+            bottomNavigation.selectedItemId = R.id.nav_home
+        }
     }
 
     override fun initListeners() {
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    // Đã ở trang chủ
+                    switchFragment(HomeFragment())
                     true
                 }
                 R.id.nav_statistics -> {
-                    Toast.makeText(this, "Thống kê đang phát triển", Toast.LENGTH_SHORT).show()
+                    switchFragment(StatisticsFragment())
                     true
                 }
                 R.id.nav_plan -> {
-                    Toast.makeText(this, "Kế hoạch đang phát triển", Toast.LENGTH_SHORT).show()
+                    switchFragment(PlanFragment())
                     true
                 }
                 R.id.nav_more -> {
-                    Toast.makeText(this, "Khác đang phát triển", Toast.LENGTH_SHORT).show()
+                    switchFragment(MoreFragment())
                     true
                 }
                 else -> false
@@ -48,8 +55,14 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         }
 
         fab.setOnClickListener {
-            Toast.makeText(this, "Mở màn hình Ghi giao dịch mới", Toast.LENGTH_SHORT).show()
-            // TODO: Start AddTransactionActivity
+            Toast.makeText(this, "Ghi giao dịch mới", Toast.LENGTH_SHORT).show()
+            // TODO: startActivity(Intent(this, AddTransactionActivity::class.java))
         }
+    }
+
+    private fun switchFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
     }
 }
