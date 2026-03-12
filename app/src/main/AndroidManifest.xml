@@ -42,6 +42,9 @@
 
         <!-- Home -->
         <activity android:name=".features.home.HomeActivity" />
+        <activity
+            android:name=".features.category.CategoryActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />

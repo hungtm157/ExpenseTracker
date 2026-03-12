@@ -3,48 +3,53 @@ package com.example.expensetracker.features.more
 import android.content.Intent
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseFragment
 import com.example.expensetracker.features.auth.login.LoginActivity
+import com.example.expensetracker.features.category.CategoryActivity
 
 /**
- * MoreFragment — Màn hình Khác: thông tin tài khoản, cài đặt, đăng xuất.
+ * MoreFragment — Màn hình Cài đặt (tab Khác trong Bottom Navigation).
+ * Hiển thị: thông tin user, ngân sách tháng, tổng quan tài chính, menu cài đặt.
  */
 class MoreFragment : BaseFragment(R.layout.fragment_more) {
 
     private lateinit var menuProfile: LinearLayout
-    private lateinit var menuWallet: LinearLayout
-    private lateinit var menuSettings: LinearLayout
-    private lateinit var menuLanguage: LinearLayout
-    private lateinit var btnLogout: androidx.appcompat.widget.AppCompatButton
+    private lateinit var menuCategories: LinearLayout
+    private lateinit var menuNotifications: LinearLayout
+    private lateinit var menuSecurity: LinearLayout
+    private lateinit var menuAbout: LinearLayout
+    private lateinit var tvEditBudget: TextView
 
     override fun initViews(view: View) {
         menuProfile = view.findViewById(R.id.menuProfile)
-        menuWallet = view.findViewById(R.id.menuWallet)
-        menuSettings = view.findViewById(R.id.menuSettings)
-        menuLanguage = view.findViewById(R.id.menuLanguage)
-        btnLogout = view.findViewById(R.id.btnLogout)
+        menuCategories = view.findViewById(R.id.menuCategories)
+        menuNotifications = view.findViewById(R.id.menuNotifications)
+        menuSecurity = view.findViewById(R.id.menuSecurity)
+        menuAbout = view.findViewById(R.id.menuAbout)
+        tvEditBudget = view.findViewById(R.id.tvEditBudget)
     }
 
     override fun initListeners() {
         menuProfile.setOnClickListener {
             Toast.makeText(requireContext(), "Thông tin cá nhân", Toast.LENGTH_SHORT).show()
         }
-        menuWallet.setOnClickListener {
-            Toast.makeText(requireContext(), "Tài khoản ví", Toast.LENGTH_SHORT).show()
+        menuCategories.setOnClickListener {
+            startActivity(Intent(requireContext(), CategoryActivity::class.java))
         }
-        menuSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Thiết lập", Toast.LENGTH_SHORT).show()
+        menuNotifications.setOnClickListener {
+            Toast.makeText(requireContext(), "Thông báo", Toast.LENGTH_SHORT).show()
         }
-        menuLanguage.setOnClickListener {
-            Toast.makeText(requireContext(), "Ngôn ngữ", Toast.LENGTH_SHORT).show()
+        menuSecurity.setOnClickListener {
+            Toast.makeText(requireContext(), "Bảo mật", Toast.LENGTH_SHORT).show()
         }
-        btnLogout.setOnClickListener {
-            // TODO: xóa token, quay về màn Login
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+        menuAbout.setOnClickListener {
+            Toast.makeText(requireContext(), "Về ứng dụng", Toast.LENGTH_SHORT).show()
+        }
+        tvEditBudget.setOnClickListener {
+            Toast.makeText(requireContext(), "Chỉnh sửa ngân sách", Toast.LENGTH_SHORT).show()
         }
     }
 }
