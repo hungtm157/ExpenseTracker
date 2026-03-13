@@ -43,4 +43,19 @@
     <string name="more_menu_settings">Thiết lập</string>
     <string name="more_menu_language">Ngôn ngữ</string>
     <string name="more_logout">Đăng xuất</string>
+
+    <!-- MoreFragment redesign -->
+    <string name="more_title">Cài đặt</string>
+    <string name="more_finance_overview">Tổng quan tài chính</string>
+    <string name="more_total_expense">Tổng chi tiêu:</string>
+    <string name="more_total_income">Tổng thu nhập:</string>
+    <string name="more_balance">Số dư:</string>
+    <string name="more_transaction_count">Giao dịch:</string>
+    <string name="more_menu_categories">Quản lý danh mục</string>
+    <string name="more_menu_notifications">Thông báo</string>
+    <string name="more_menu_security">Bảo mật</string>
+    <string name="more_menu_about">Về ứng dụng</string>
+
+    <!-- CategoryActivity -->
+    <string name="category_title">Quản lý danh mục</string>
 </resources>
