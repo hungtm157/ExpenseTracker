@@ -4,22 +4,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.expensetracker.R
+import com.example.expensetracker.data.models.CategoryItem
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
- * Adapter hiển thị danh sách danh mục chi tiêu / thu nhập.
+ * CategoryAdapter — Hiển thị danh sách CategoryItem từ API.
  */
 class CategoryAdapter(
-    private var items: MutableList<CategoryModel>,
-    private val onEditClick: (CategoryModel, Int) -> Unit
+    private var items: MutableList<CategoryItem>,
+    private val onEditClick: (CategoryItem, Int) -> Unit,
+    private val onStatusChange: (CategoryItem, Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+
+    companion object {
+        private const val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+    }
 
     inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val iconContainer: FrameLayout = view.findViewById(R.id.iconContainer)
-        val tvCategoryIcon: TextView = view.findViewById(R.id.tvCategoryIcon)
+        val imgCategoryIcon: ImageView = view.findViewById(R.id.imgCategoryIcon)
         val tvCategoryName: TextView = view.findViewById(R.id.tvCategoryName)
         val tvCategoryMeta: TextView = view.findViewById(R.id.tvCategoryMeta)
         val switchCategory: SwitchMaterial = view.findViewById(R.id.switchCategory)
@@ -35,17 +43,31 @@ class CategoryAdapter(
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val item = items[position]
 
-        holder.tvCategoryIcon.text = item.icon
         holder.tvCategoryName.text = item.name
-        holder.tvCategoryMeta.text = item.meta
-        holder.iconContainer.setBackgroundResource(item.iconBg)
+        holder.tvCategoryMeta.text = item.metaText
 
-        // Tắt listener trước để tránh trigger khi bind lại
+        val iconBg = if (item.type == "INCOME") R.drawable.bg_cat_teal else R.drawable.bg_cat_orange
+        holder.iconContainer.setBackgroundResource(iconBg)
+
+        val iconUrl = item.iconUrl
+        if (!iconUrl.isNullOrBlank()) {
+            Glide.with(holder.itemView.context)
+                .load("$BASE_URL$iconUrl")
+                .placeholder(R.drawable.ic_plan)
+                .error(R.drawable.ic_logo_spash)
+                .into(holder.imgCategoryIcon)
+        } else {
+            holder.imgCategoryIcon.setImageResource(R.drawable.ic_logo_spash)
+        }
+
+        // Switch: bật nếu ACTIVATE. Tắt listener trước khi set để tránh loop
         holder.switchCategory.setOnCheckedChangeListener(null)
-        holder.switchCategory.isChecked = item.isEnabled
-
+        holder.switchCategory.isChecked = item.isActive
+        
+        // Chỉ cho phép đổi status nếu KHÔNG phải system category (user_id != null)
+        // Hoặc cho phép đổi hết? Theo yêu cầu "status sẽ là đổi bằng thanh switch"
         holder.switchCategory.setOnCheckedChangeListener { _, isChecked ->
-            item.isEnabled = isChecked
+            onStatusChange(item, isChecked)
         }
 
         holder.btnEdit.setOnClickListener {
@@ -55,8 +77,10 @@ class CategoryAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    fun updateList(newItems: MutableList<CategoryModel>) {
-        items = newItems
+    fun getItemAt(position: Int): CategoryItem = items[position]
+
+    fun updateList(newItems: List<CategoryItem>) {
+        items = newItems.toMutableList()
         notifyDataSetChanged()
     }
 }

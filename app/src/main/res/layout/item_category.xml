@@ -25,13 +25,14 @@
             android:layout_height="52dp"
             android:background="@drawable/bg_cat_orange">
 
-            <TextView
-                android:id="@+id/tvCategoryIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textSize="22sp"
-                tools:text="🍽️" />
+            <ImageView
+                android:id="@+id/imgCategoryIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription"
+                tools:src="@drawable/ic_plan" />
         </FrameLayout>
 
         <!-- Tên + mô tả danh mục -->
