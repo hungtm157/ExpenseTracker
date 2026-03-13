@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00BC7D">
+    android:background="@drawable/bg_gradient_green"
+    >
 
     <!-- Header -->
     <TextView
@@ -85,7 +86,7 @@
                 android:id="@+id/btnOcr"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:background="@drawable/bg_tab_container"
+                android:background="@drawable/bg_button_green"
                 android:backgroundTint="#4DFFFFFF"
                 android:drawableStart="@drawable/ic_statistics"
                 android:drawablePadding="8dp"
@@ -263,10 +264,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
-                android:background="@drawable/bg_button_white"
+                android:background="@drawable/bg_button_green"
                 android:text="Lưu giao dịch"
                 android:textAllCaps="false"
-                android:textColor="#00BC7D"
+                android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

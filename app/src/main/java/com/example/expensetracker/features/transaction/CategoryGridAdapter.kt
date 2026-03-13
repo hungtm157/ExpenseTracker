@@ -28,10 +28,8 @@ class CategoryGridAdapter(
         holder.tvIcon.text = category.icon
         holder.tvName.text = category.name
         
-        // Highlight selection
-        holder.iconBg.setBackgroundResource(if (position == selectedPosition) R.drawable.bg_gradient_green else R.drawable.bg_avatar_circle)
-        holder.iconBg.backgroundTintList = if (position == selectedPosition) null else android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F8F9FA"))
-        holder.tvIcon.setTextColor(if (position == selectedPosition) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#424242"))
+        // Highlight selection using the selector in XML
+        holder.itemView.isSelected = (position == selectedPosition)
 
         holder.itemView.setOnClickListener {
             val prev = selectedPosition
@@ -49,8 +47,7 @@ class CategoryGridAdapter(
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvIcon: TextView = view.findViewById(R.id.ivCategoryIcon) // Reusing ID but it's a TextView for Emoji
+        val tvIcon: TextView = view.findViewById(R.id.ivCategoryIcon)
         val tvName: TextView = view.findViewById(R.id.tvCategoryName)
-        val iconBg: View = view.findViewById(R.id.viewCategoryIconBg)
     }
 }
