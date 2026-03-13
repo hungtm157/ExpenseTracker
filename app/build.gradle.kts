@@ -59,6 +59,9 @@ dependencies {
 
     implementation("androidx.core:core-splashscreen:1.2.0")
 
+    // Glide — load ảnh từ URL
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
     // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
