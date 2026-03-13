@@ -45,6 +45,9 @@
         <activity
             android:name=".features.category.CategoryActivity"
             android:windowSoftInputMode="adjustResize" />
+        
+        <!-- Wallet -->
+        <activity android:name=".features.wallet.WalletActivity" />
 
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
