@@ -1,21 +1,31 @@
 package com.example.expensetracker.features.category
 
+import android.net.Uri
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.data.local.AppPreferences
 import com.example.expensetracker.data.models.CategoryItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
  * CategoryActivity — Màn hình Quản lý danh mục.
- * Gọi API GET /api/v1/categories theo tab: Chi tiêu (EXPENSE) / Thu nhập (INCOME).
+ * Hỗ trợ các chức năng: Xem danh sách, Thêm mới, Chỉnh sửa, và Bật/Tắt trạng thái.
  */
 class CategoryActivity : BaseActivity(R.layout.activity_category),
     CategoryController.CategoryListener {
@@ -33,6 +43,26 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
     private lateinit var prefs: AppPreferences
     private var isExpenseTab = true
 
+    // BASE_URL đồng bộ với ApiClient/Adapter
+    private val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+
+    // Biến tạm cho Dialog
+    private var selectedImageUri: Uri? = null
+    private var dialogImgSelected: ImageView? = null
+    private var dialogImgRemove: ImageView? = null
+    private var dialogLayoutPlaceholder: LinearLayout? = null
+
+    // Picker chọn ảnh
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            dialogImgSelected?.visibility = View.VISIBLE
+            dialogImgRemove?.visibility = View.VISIBLE
+            dialogLayoutPlaceholder?.visibility = View.GONE
+            dialogImgSelected?.setImageURI(it)
+        }
+    }
+
     override fun initViews() {
         btnBack = findViewById(R.id.imgBack)
         tabExpense = findViewById(R.id.tabExpense)
@@ -45,13 +75,26 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
         prefs = AppPreferences(this)
         controller = CategoryController(this)
 
-        adapter = CategoryAdapter(mutableListOf()) { item, _ ->
-            Toast.makeText(this, "Chỉnh sửa: ${item.name}", Toast.LENGTH_SHORT).show()
-        }
+        adapter = CategoryAdapter(
+            mutableListOf(),
+            onEditClick = { item, _ ->
+                if (item.userId == null) {
+                    Toast.makeText(this, "Không thể sửa danh mục hệ thống", Toast.LENGTH_SHORT).show()
+                } else {
+                    showCategoryDialog(item)
+                }
+            },
+            onStatusChange = { item, isChecked ->
+                val newStatus = if (isChecked) "ACTIVATE" else "DISABLED"
+                controller.updateCategory(this, prefs.authToken, item.id, null, null, newStatus, null)
+            }
+        )
+        
         recyclerCategories.layoutManager = LinearLayoutManager(this)
         recyclerCategories.adapter = adapter
+        
+        setupSwipeToDelete()
 
-        // Tải danh mục Chi tiêu mặc định
         loadCategories("EXPENSE")
     }
 
@@ -75,9 +118,123 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
         }
 
         fabAddCategory.setOnClickListener {
-            val tabName = if (isExpenseTab) "chi tiêu" else "thu nhập"
-            Toast.makeText(this, "Thêm danh mục $tabName mới", Toast.LENGTH_SHORT).show()
+            showCategoryDialog(null)
         }
+    }
+
+    private fun setupSwipeToDelete() {
+        val swipeHandler = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val item = adapter.getItemAt(position)
+
+                if (item.userId == null) {
+                    Toast.makeText(this@CategoryActivity, "Không thể xóa danh mục hệ thống", Toast.LENGTH_SHORT).show()
+                    adapter.notifyItemChanged(position)
+                    return
+                }
+
+                AlertDialog.Builder(this@CategoryActivity)
+                    .setTitle("Xác nhận xóa")
+                    .setMessage("Bạn có chắc chắn muốn xóa danh mục \"${item.name}\"?")
+                    .setPositiveButton("Xóa") { _, _ ->
+                        controller.deleteCategory(prefs.authToken, item.id)
+                    }
+                    .setNegativeButton("Hủy") { dialog, _ ->
+                        adapter.notifyItemChanged(position)
+                        dialog.dismiss()
+                    }
+                    .setOnCancelListener {
+                        adapter.notifyItemChanged(position)
+                    }
+                    .show()
+            }
+        }
+        ItemTouchHelper(swipeHandler).attachToRecyclerView(recyclerCategories)
+    }
+
+    /**
+     * Dialog dùng chung cho Thêm mới (item == null) và Chỉnh sửa (item != null)
+     */
+    private fun showCategoryDialog(categoryItem: CategoryItem?) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_category, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
+            .setView(dialogView)
+            .create()
+
+        val tvTitle: TextView = dialogView.findViewById(R.id.tvDialogTitle)
+        val imgClose: ImageView = dialogView.findViewById(R.id.imgClose)
+        val edtName: EditText = dialogView.findViewById(R.id.edtCategoryName)
+        val btnPickImage: FrameLayout = dialogView.findViewById(R.id.btnPickImage)
+        val btnCancel: View = dialogView.findViewById(R.id.btnCancel)
+        val btnSave: View = dialogView.findViewById(R.id.btnSave)
+        
+        val layoutStatus: LinearLayout = dialogView.findViewById(R.id.layoutStatus)
+        val switchStatus: SwitchMaterial = dialogView.findViewById(R.id.switchStatus)
+        
+        dialogImgSelected = dialogView.findViewById(R.id.imgSelected)
+        dialogImgRemove = dialogView.findViewById(R.id.imgRemoveImage)
+        dialogLayoutPlaceholder = dialogView.findViewById(R.id.layoutPlaceholder)
+        selectedImageUri = null 
+
+        // Fill dữ liệu cũ nếu là EDIT
+        if (categoryItem != null) {
+            tvTitle.text = "Cập nhật danh mục"
+            edtName.setText(categoryItem.name)
+            layoutStatus.visibility = View.VISIBLE
+            switchStatus.isChecked = categoryItem.isActive
+            
+            val iconUrl = categoryItem.iconUrl
+            if (!iconUrl.isNullOrBlank()) {
+                dialogImgSelected?.visibility = View.VISIBLE
+                dialogImgRemove?.visibility = View.VISIBLE
+                dialogLayoutPlaceholder?.visibility = View.GONE
+                Glide.with(this).load("$BASE_URL$iconUrl").into(dialogImgSelected!!)
+            }
+        }
+
+        imgClose.setOnClickListener { dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        
+        btnPickImage.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
+        dialogImgRemove?.setOnClickListener {
+            selectedImageUri = null
+            dialogImgSelected?.visibility = View.GONE
+            dialogImgRemove?.visibility = View.GONE
+            dialogLayoutPlaceholder?.visibility = View.VISIBLE
+        }
+
+        btnSave.setOnClickListener {
+            val name = edtName.text.toString().trim()
+            if (name.isEmpty()) {
+                edtName.error = "Vui lòng nhập tên danh mục"
+                return@setOnClickListener
+            }
+
+            val type = if (isExpenseTab) "EXPENSE" else "INCOME"
+            val token = prefs.authToken
+            
+            if (categoryItem == null) {
+                // Thêm mới
+                controller.addCategory(this, token, name, type, selectedImageUri)
+            } else {
+                // Cập nhật
+                val status = if (switchStatus.isChecked) "ACTIVATE" else "DISABLED"
+                controller.updateCategory(this, token, categoryItem.id, name, type, status, selectedImageUri)
+            }
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     // ─── CategoryListener callbacks ───────────────────────────────────────────
@@ -88,15 +245,29 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
         adapter.updateList(items)
     }
 
+    override fun onCategoryAdded(item: CategoryItem) {
+        Toast.makeText(this, "Thêm danh mục thành công!", Toast.LENGTH_SHORT).show()
+        loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+    }
+
+    override fun onCategoryUpdated(item: CategoryItem) {
+        Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+        loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+    }
+
+    override fun onCategoryDeleted(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+    }
+
     override fun onLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        recyclerCategories.visibility = if (isLoading) View.GONE else View.VISIBLE
     }
 
     override fun onError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        tvEmptyState.visibility = View.VISIBLE
-        recyclerCategories.visibility = View.GONE
+        // Nếu lỗi xảy ra (ví dụ 500), reload lại list để revert trạng thái Switch ở UI
+        loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
