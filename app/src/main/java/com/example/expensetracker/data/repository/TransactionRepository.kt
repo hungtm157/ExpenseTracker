@@ -29,19 +29,12 @@ class TransactionRepository(private val apiService: ApiService) {
         )
     }
 
-    /** Tạo giao dịch mới */
+    /** Tạo giao dịch mới (JSON) */
     suspend fun createTransaction(
-        walletId: RequestBody,
-        categoryId: RequestBody,
-        amount: RequestBody,
-        transactionDate: RequestBody,
-        note: RequestBody? = null,
-        currency: RequestBody? = null,
-        receiptImage: MultipartBody.Part? = null
+        token: String,
+        request: TransactionCreateRequest
     ): Response<TransactionModel> {
-        return apiService.createTransaction(
-            walletId, categoryId, amount, transactionDate, note, currency, receiptImage
-        )
+        return apiService.createTransaction("Bearer $token", request)
     }
 
     /** Quét OCR hóa đơn */

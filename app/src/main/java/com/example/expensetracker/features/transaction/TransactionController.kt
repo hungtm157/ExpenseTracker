@@ -22,35 +22,34 @@ class TransactionController(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val TAG = "TransactionController"
 
-    /** Tạo giao dịch mới (Thủ công) */
+    /** Tạo giao dịch mới (Thủ công - JSON) */
     fun createTransaction(
+        token: String,
         walletId: Int,
         categoryId: Int,
         amount: Double,
         date: String,
         note: String? = null,
+        currency: String? = null,
         imageFile: File? = null
     ) {
-        Log.d(TAG, "createTransaction: Đang tạo giao dịch...")
+        Log.d(TAG, "createTransaction: Đang tạo giao dịch (JSON)...")
         listener.onLoading(true)
 
-        val walletIdBody = walletId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-        val categoryIdBody = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-        val amountBody = amount.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-        val dateBody = date.toRequestBody("text/plain".toMediaTypeOrNull())
-        val noteBody = note?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-        val imagePart = imageFile?.let {
-            val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("receipt_image", it.name, requestFile)
-        }
+        val request = TransactionCreateRequest(
+            walletId = walletId,
+            categoryId = categoryId,
+            amount = amount,
+            note = note,
+            currency = currency ?: "VND",
+            transactionDate = date,
+            source = TransactionSource.MANUAL
+        )
 
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    repository.createTransaction(
-                        walletIdBody, categoryIdBody, amountBody, dateBody, noteBody, null, imagePart
-                    )
+                    repository.createTransaction(token, request)
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
@@ -59,7 +58,7 @@ class TransactionController(
                         listener.onTransactionCreated(it)
                     }
                 } else {
-                    val errorMsg = "Lỗi: ${response.code()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "createTransaction: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -94,7 +93,7 @@ class TransactionController(
                         listener.onOcrResult(it)
                     }
                 } else {
-                    val errorMsg = "Lỗi OCR: ${response.code()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "scanOcr: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -103,6 +102,19 @@ class TransactionController(
                 listener.onLoading(false)
                 listener.onError(e.message ?: "Lỗi kết nối")
             }
+        }
+    }
+
+    /**
+     * Helper trích xuất thông báo lỗi từ JSON body của API.
+     */
+    private fun parseErrorMessage(errorBody: okhttp3.ResponseBody?): String {
+        return try {
+            val errorJson = errorBody?.string()
+            val errorResponse = com.google.gson.Gson().fromJson(errorJson, com.example.expensetracker.data.models.ErrorResponse::class.java)
+            errorResponse.message
+        } catch (e: Exception) {
+            "Đã có lỗi xảy ra, vui lòng thử lại"
         }
     }
 }

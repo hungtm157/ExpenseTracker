@@ -10,15 +10,27 @@ import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
+import com.example.expensetracker.data.local.AppPreferences
+import com.example.expensetracker.data.models.CategoryItem
 import com.example.expensetracker.data.repository.TransactionRepository
-import com.example.expensetracker.features.category.CategoryModel
+import com.example.expensetracker.data.repository.WalletRepository
+import com.example.expensetracker.features.category.CategoryController
+import com.example.expensetracker.features.wallet.WalletModel
+import com.example.expensetracker.features.wallet.WalletType
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * AddTransactionActivity — Màn hình thêm giao dịch mới.
  */
-class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), TransactionListener {
+class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
+    TransactionListener, CategoryController.CategoryListener {
 
     private lateinit var btnClose: ImageView
     private lateinit var btnExpense: TextView
@@ -31,13 +43,26 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
     private lateinit var btnSave: Button
     private lateinit var btnOcr: Button
 
+    // Wallet Views
+    private lateinit var btnWalletSelector: View
+    private lateinit var ivSelectedWalletIcon: ImageView
+    private lateinit var tvSelectedWalletName: TextView
+    private lateinit var tvSelectedWalletBalance: TextView
+
     private lateinit var controller: TransactionController
+    private lateinit var categoryController: CategoryController
     private lateinit var categoryAdapter: CategoryGridAdapter
+    private lateinit var walletRepository: WalletRepository
+    private lateinit var prefs: AppPreferences
     
     private var isExpense = true
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("vi", "VN"))
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val moneyFormat = DecimalFormat("#,###")
+
+    private var walletsList = mutableListOf<WalletModel>()
+    private var selectedWallet: WalletModel? = null
 
     override fun initViews() {
         btnClose = findViewById(R.id.btnClose)
@@ -51,51 +76,78 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
         btnSave = findViewById(R.id.btnSave)
         btnOcr = findViewById(R.id.btnOcr)
 
-        // Init Controller
+        // Wallet Views
+        btnWalletSelector = findViewById(R.id.btnWalletSelector)
+        ivSelectedWalletIcon = findViewById(R.id.ivSelectedWalletIcon)
+        tvSelectedWalletName = findViewById(R.id.tvSelectedWalletName)
+        tvSelectedWalletBalance = findViewById(R.id.tvSelectedWalletBalance)
+
+        prefs = AppPreferences(this)
+        
         val apiService = ApiClient.create(ApiService::class.java)
+        
+        // Init Transaction Controller
         val repository = TransactionRepository(apiService)
         controller = TransactionController(repository, this)
+
+        // Init Wallet Repository
+        walletRepository = WalletRepository(apiService)
+
+        // Init Category Controller
+        categoryController = CategoryController(this)
 
         // Init Date
         updateDateText()
 
-        // Init Categories (Mock for UI demo)
-        val mockCategories = listOf(
-            CategoryModel("🍴", "Ăn tiệm", "", 0),
-            CategoryModel("🏠", "Sinh hoạt", "", 0),
-            CategoryModel("🚗", "Đi lại", "", 0),
-            CategoryModel("🛍️", "Mua sắm", "", 0),
-            CategoryModel("🏥", "Sức khỏe", "", 0),
-            CategoryModel("🎮", "Giải trí", "", 0),
-            CategoryModel("🎓", "Giáo dục", "", 0),
-            CategoryModel("💼", "Công việc", "", 0)
-        )
-        categoryAdapter = CategoryGridAdapter(mockCategories) {
+        // Init Categories Adapter (empty initially)
+        categoryAdapter = CategoryGridAdapter(mutableListOf()) {
             // Category selected
         }
         rvCategories.layoutManager = GridLayoutManager(this, 4)
         rvCategories.adapter = categoryAdapter
+
+        // Load Initial Categories & Wallets
+        loadCategories("EXPENSE")
+        loadWallets()
     }
 
     override fun initListeners() {
         btnClose.setOnClickListener { finish() }
 
         btnExpense.setOnClickListener { 
-            isExpense = true
-            updateToggleUI()
+            if (!isExpense) {
+                isExpense = true
+                updateToggleUI()
+                loadCategories("EXPENSE")
+            }
         }
         btnIncome.setOnClickListener { 
-            isExpense = false
-            updateToggleUI()
+            if (isExpense) {
+                isExpense = false
+                updateToggleUI()
+                loadCategories("INCOME")
+            }
         }
 
         btnDatePicker.setOnClickListener { showDatePicker() }
+
+        btnWalletSelector.setOnClickListener {
+            if (walletsList.isNotEmpty()) {
+                showWalletSelectionBottomSheet()
+            } else {
+                Toast.makeText(this, "Đang tải danh sách ví...", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         btnSave.setOnClickListener {
             val amount = etAmount.text.toString().toDoubleOrNull() ?: 0.0
             val note = etNote.text.toString().trim()
             val category = categoryAdapter.getSelectedCategory()
 
+            if (selectedWallet == null) {
+                Toast.makeText(this, "Vui lòng chọn ví", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (amount <= 0) {
                 Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -105,13 +157,14 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
                 return@setOnClickListener
             }
 
-            // For now, using hardcoded wallet ID 1
             controller.createTransaction(
-                walletId = 1, 
-                categoryId = 1, // Using ID 1 for mock
-                amount = if (isExpense) amount else amount, // Logic depends on backend handle
+                token = prefs.authToken,
+                walletId = selectedWallet?.id ?: 0, 
+                categoryId = category.id,
+                amount = amount,
                 date = apiDateFormat.format(calendar.time),
-                note = note
+                note = note,
+                currency = selectedWallet?.currency
             )
         }
 
@@ -120,15 +173,77 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
         }
     }
 
+    private fun loadWallets() {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    walletRepository.getWallets()
+                }
+                if (response.isSuccessful) {
+                    val wallets = response.body()?.data?.items ?: emptyList()
+                    walletsList.clear()
+                    walletsList.addAll(wallets)
+                    if (walletsList.isNotEmpty()) {
+                        updateSelectedWallet(walletsList[0])
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@AddTransactionActivity, "Không thể tải danh sách ví", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateSelectedWallet(wallet: WalletModel) {
+        selectedWallet = wallet
+        tvSelectedWalletName.text = wallet.name
+        tvSelectedWalletBalance.text = "${moneyFormat.format(wallet.balance)} ${wallet.currency}"
+        
+        val iconRes = when (wallet.type) {
+            WalletType.CASH -> R.drawable.ic_boxed_cash
+            WalletType.BANK_ACCOUNT -> R.drawable.ic_boxed_bank
+            WalletType.E_WALLET -> R.drawable.ic_boxed_ewallet
+        }
+        ivSelectedWalletIcon.setImageResource(iconRes)
+    }
+
+    private fun showWalletSelectionBottomSheet() {
+        val bottomSheetDialog = BottomSheetDialog(this, R.style.CustomBottomSheetDialog)
+        val view = layoutInflater.inflate(R.layout.layout_bottom_sheet_wallets, null)
+        bottomSheetDialog.setContentView(view)
+
+        // Nút đóng (X)
+        view.findViewById<View>(R.id.btnBottomSheetClose).setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+
+        val rvWallets: RecyclerView = view.findViewById(R.id.rvWallets)
+        val adapter = WalletSelectionAdapter(walletsList, selectedWallet?.id ?: -1) { wallet ->
+            updateSelectedWallet(wallet)
+            bottomSheetDialog.dismiss()
+        }
+        rvWallets.adapter = adapter
+
+        bottomSheetDialog.show()
+    }
+
+    private fun loadCategories(type: String) {
+        val token = prefs.authToken
+        if (token.isNotEmpty()) {
+            categoryController.loadCategories(token, type)
+        } else {
+            Toast.makeText(this, "Lỗi: Không tìm thấy Token", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun updateToggleUI() {
         if (isExpense) {
             btnExpense.setBackgroundResource(R.drawable.bg_tab_selected)
-            btnExpense.setTextColor(resources.getColor(R.color.nav_active, null)) // Or red if design says so
+            btnExpense.setTextColor(resources.getColor(R.color.green_mid, null))
             btnIncome.background = null
             btnIncome.setTextColor(resources.getColor(R.color.white, null))
         } else {
             btnIncome.setBackgroundResource(R.drawable.bg_tab_selected)
-            btnIncome.setTextColor(resources.getColor(R.color.nav_active, null))
+            btnIncome.setTextColor(resources.getColor(R.color.green_mid, null))
             btnExpense.background = null
             btnExpense.setTextColor(resources.getColor(R.color.white, null))
         }
@@ -150,6 +265,16 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
     private fun updateDateText() {
         tvDate.text = dateFormat.format(calendar.time)
     }
+
+    // ─── CategoryListener (CategoryController.CategoryListener) ──────────────
+
+    override fun onCategoriesLoaded(items: List<CategoryItem>) {
+        categoryAdapter.updateList(items)
+    }
+
+    override fun onCategoryAdded(item: CategoryItem) {}
+    override fun onCategoryUpdated(item: CategoryItem) {}
+    override fun onCategoryDeleted(message: String) {}
 
     // ─── TransactionListener ────────────────────────────────────────────────
 

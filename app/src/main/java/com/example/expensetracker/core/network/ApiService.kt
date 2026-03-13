@@ -134,16 +134,10 @@ interface ApiService {
         @Query("source") source: String? = null
     ): Response<TransactionListResponse>
 
-    @Multipart
     @POST("api/v1/transactions")
     suspend fun createTransaction(
-        @Part("wallet_id") walletId: RequestBody,
-        @Part("category_id") categoryId: RequestBody,
-        @Part("amount") amount: RequestBody,
-        @Part("transaction_date") transactionDate: RequestBody,
-        @Part("note") note: RequestBody? = null,
-        @Part("currency") currency: RequestBody? = null,
-        @Part receiptImage: MultipartBody.Part? = null
+        @Header("Authorization") token: String,
+        @Body request: TransactionCreateRequest
     ): Response<TransactionModel>
 
     @Multipart
