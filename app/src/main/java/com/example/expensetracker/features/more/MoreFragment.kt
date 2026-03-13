@@ -45,7 +45,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more) {
             startActivity(Intent(requireContext(), CategoryActivity::class.java))
         }
         menuWallet.setOnClickListener {
-            Toast.makeText(requireContext(), "Quản lý ví", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(requireContext(), com.example.expensetracker.features.wallet.WalletActivity::class.java))
         }
         menuNotifications.setOnClickListener {
             Toast.makeText(requireContext(), "Thông báo", Toast.LENGTH_SHORT).show()
