@@ -14,12 +14,11 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
  * CategoryAdapter — Hiển thị danh sách CategoryItem từ API.
- * Load icon từ icon_url (baseUrl + path). Fallback ic_plan nếu null.
- * Switch phản ánh status: ACTIVATE = bật, DEACTIVATE = tắt.
  */
 class CategoryAdapter(
     private var items: MutableList<CategoryItem>,
-    private val onEditClick: (CategoryItem, Int) -> Unit
+    private val onEditClick: (CategoryItem, Int) -> Unit,
+    private val onStatusChange: (CategoryItem, Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     companion object {
@@ -44,30 +43,32 @@ class CategoryAdapter(
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val item = items[position]
 
-        // Tên và meta text
         holder.tvCategoryName.text = item.name
         holder.tvCategoryMeta.text = item.metaText
 
-        // Màu nền icon container theo type
         val iconBg = if (item.type == "INCOME") R.drawable.bg_cat_teal else R.drawable.bg_cat_orange
         holder.iconContainer.setBackgroundResource(iconBg)
 
-        // Load icon từ icon_url → ghép BASE_URL + path, fallback ic_plan nếu null
         val iconUrl = item.iconUrl
         if (!iconUrl.isNullOrBlank()) {
             Glide.with(holder.itemView.context)
                 .load("$BASE_URL$iconUrl")
                 .placeholder(R.drawable.ic_plan)
-                .error(R.drawable.ic_plan)
+                .error(R.drawable.ic_logo_spash)
                 .into(holder.imgCategoryIcon)
         } else {
             holder.imgCategoryIcon.setImageResource(R.drawable.ic_logo_spash)
         }
 
-        // Switch: bật nếu ACTIVATE
+        // Switch: bật nếu ACTIVATE. Tắt listener trước khi set để tránh loop
         holder.switchCategory.setOnCheckedChangeListener(null)
         holder.switchCategory.isChecked = item.isActive
-        holder.switchCategory.setOnCheckedChangeListener { _, _ -> }
+        
+        // Chỉ cho phép đổi status nếu KHÔNG phải system category (user_id != null)
+        // Hoặc cho phép đổi hết? Theo yêu cầu "status sẽ là đổi bằng thanh switch"
+        holder.switchCategory.setOnCheckedChangeListener { _, isChecked ->
+            onStatusChange(item, isChecked)
+        }
 
         holder.btnEdit.setOnClickListener {
             onEditClick(item, position)
@@ -75,6 +76,8 @@ class CategoryAdapter(
     }
 
     override fun getItemCount(): Int = items.size
+
+    fun getItemAt(position: Int): CategoryItem = items[position]
 
     fun updateList(newItems: List<CategoryItem>) {
         items = newItems.toMutableList()

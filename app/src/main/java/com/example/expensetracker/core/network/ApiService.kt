@@ -1,6 +1,8 @@
 package com.example.expensetracker.core.network
 
 import com.example.expensetracker.data.models.CategoryListResponse
+import com.example.expensetracker.data.models.CategoryItem
+import com.example.expensetracker.data.models.ErrorResponse
 import com.example.expensetracker.data.models.ForgotPasswordRequest
 import com.example.expensetracker.data.models.ForgotPasswordResponse
 import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpRequest
@@ -17,12 +19,14 @@ import com.example.expensetracker.features.wallet.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.*
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
-import retrofit2.http.*
 
 /**
  * ApiService — Interface định nghĩa các API endpoint.
@@ -61,6 +65,32 @@ interface ApiService {
         @Query("limit") limit: Int = 100,
         @Query("type") type: String
     ): Response<CategoryListResponse>
+
+    @retrofit2.http.Multipart
+    @POST("api/v1/categories")
+    suspend fun createCategory(
+        @Header("Authorization") token: String,
+        @retrofit2.http.Part("name") name: okhttp3.RequestBody,
+        @retrofit2.http.Part("type") type: okhttp3.RequestBody,
+        @retrofit2.http.Part icon: okhttp3.MultipartBody.Part?
+    ): Response<CategoryItem>
+
+    @retrofit2.http.Multipart
+    @PATCH("api/v1/categories/{id}")
+    suspend fun updateCategory(
+        @Header("Authorization") token: String,
+        @retrofit2.http.Path("id") id: Int,
+        @retrofit2.http.Part("name") name: okhttp3.RequestBody?,
+        @retrofit2.http.Part("type") type: okhttp3.RequestBody?,
+        @retrofit2.http.Part("status") status: okhttp3.RequestBody?,
+        @retrofit2.http.Part icon: okhttp3.MultipartBody.Part?
+    ): Response<CategoryItem>
+
+    @DELETE("api/v1/categories/{id}")
+    suspend fun deleteCategory(
+        @Header("Authorization") token: String,
+        @retrofit2.http.Path("id") id: Int
+    ): Response<ErrorResponse>
 
     @GET("ping")
     suspend fun ping(): Any

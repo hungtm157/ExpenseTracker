@@ -27,7 +27,7 @@ data class CategoryItem(
     @SerializedName("name_normalized") val nameNormalized: String,
     @SerializedName("type") val type: String,             // "EXPENSE" | "INCOME"
     @SerializedName("icon_url") val iconUrl: String?,
-    @SerializedName("status") val status: String,         // "ACTIVATE" | "DEACTIVATE"
+    @SerializedName("status") val status: String,         // "ACTIVATE" | "DISABLED"
     @SerializedName("createdAt") val createdAt: String
 ) {
     /** true nếu danh mục do admin tạo sẵn */
@@ -42,3 +42,7 @@ data class CategoryItem(
         return if (isDefault) "Mặc định • $statusLabel" else statusLabel
     }
 }
+// ─── Model lỗi trả về từ API ────────────────────────────────────────────────
+data class ErrorResponse(
+    @SerializedName("message") val message: String
+)
