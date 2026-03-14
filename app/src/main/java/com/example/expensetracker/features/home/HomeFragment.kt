@@ -17,6 +17,11 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         btnViewAllTransactions.setOnClickListener {
             startActivity(android.content.Intent(requireContext(), TransactionHistoryActivity::class.java))
         }
+
+        val btnAddTransactionCenter = view.findViewById<android.widget.Button>(R.id.btnAddTransactionCenter)
+        btnAddTransactionCenter.setOnClickListener {
+            startActivity(android.content.Intent(requireContext(), com.example.expensetracker.features.transaction.AddTransactionActivity::class.java))
+        }
     }
 
     override fun initListeners() {
