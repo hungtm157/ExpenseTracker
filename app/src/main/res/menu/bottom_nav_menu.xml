@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/ic_nav_home"
         android:title="@string/title_home" />
     <item
         android:id="@+id/nav_statistics"
-        android:icon="@drawable/ic_statistics"
+        android:icon="@drawable/ic_nav_statistics"
         android:title="@string/title_statistics" />
     <item
         android:id="@+id/nav_placeholder"
@@ -15,10 +15,10 @@
         android:title="" />
     <item
         android:id="@+id/nav_plan"
-        android:icon="@drawable/ic_plan"
+        android:icon="@drawable/ic_nav_plan"
         android:title="@string/title_plan" />
     <item
         android:id="@+id/nav_more"
-        android:icon="@drawable/ic_more"
+        android:icon="@drawable/ic_nav_more"
         android:title="@string/title_more" />
 </menu>
