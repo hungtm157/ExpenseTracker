@@ -16,6 +16,7 @@ import com.example.expensetracker.utils.DateTimeUtils
 
 class TransactionHistoryAdapter(
     private var transactions: List<TransactionModel>,
+    private val onItemClick: (TransactionModel) -> Unit,
     private val onDeleteClick: (TransactionModel) -> Unit
 ) : RecyclerView.Adapter<TransactionHistoryAdapter.TransactionViewHolder>() {
 
@@ -63,6 +64,10 @@ class TransactionHistoryAdapter(
              holder.ivCategoryIcon.setImageResource(R.drawable.icon_chi)
              holder.ivCategoryIcon.setColorFilter(redColor)
              holder.ivCategoryIcon.backgroundTintList = ColorStateList.valueOf("#FFF0F0".toColorInt())
+        }
+
+        holder.itemView.setOnClickListener {
+            onItemClick(transaction)
         }
 
         holder.btnDelete.setOnClickListener {

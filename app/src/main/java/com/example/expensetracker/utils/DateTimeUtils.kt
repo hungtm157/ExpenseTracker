@@ -21,4 +21,26 @@ object DateTimeUtils {
             ""
         }
     }
+
+    fun parseIsoDate(isoDate: String?): Date? {
+        if (isoDate.isNullOrEmpty()) return null
+        val formats = listOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd"
+        )
+        for (pattern in formats) {
+            try {
+                val format = SimpleDateFormat(pattern, Locale.getDefault())
+                if (pattern.endsWith("'Z'")) {
+                    format.timeZone = TimeZone.getTimeZone("UTC")
+                }
+                return format.parse(isoDate)
+            } catch (e: Exception) {
+                // Ignore and try next pattern
+            }
+        }
+        return null
+    }
 }

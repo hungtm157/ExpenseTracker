@@ -25,10 +25,9 @@ class CategoryRepository {
     /**
      * Lấy danh sách danh mục từ API.
      */
-    suspend fun getCategories(token: String, type: String): Response<CategoryListResponse> {
+    suspend fun getCategories(type: String): Response<CategoryListResponse> {
         return api.getCategories(
             page = 1,
-            limit = 100,
             type = type
         )
     }

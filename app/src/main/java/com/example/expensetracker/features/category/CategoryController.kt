@@ -29,7 +29,7 @@ class CategoryController(private val listener: CategoryListener) {
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    repository.getCategories(token, type)
+                    repository.getCategories(type)
                 }
                 listener.onLoading(false)
 

@@ -44,6 +44,7 @@
         <activity android:name=".features.home.HomeActivity" />
         <activity android:name=".features.transaction.AddTransactionActivity" />
         <activity android:name=".features.transaction.TransactionHistoryActivity" />
+        <activity android:name=".features.transaction.TransactionDetailActivity" />
         <activity
             android:name=".features.category.CategoryActivity"
             android:windowSoftInputMode="adjustResize" />

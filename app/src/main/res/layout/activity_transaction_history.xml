@@ -11,9 +11,10 @@
         android:id="@+id/layoutTopSection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_gradient_teal"
+        android:background="@drawable/bg_gradient_header"
         android:orientation="vertical"
-        android:paddingBottom="24dp">
+        android:paddingBottom="24dp"
+        >
 
         <LinearLayout
             android:id="@+id/layoutHeader"

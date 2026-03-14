@@ -19,6 +19,10 @@ import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.repository.TransactionRepository
 import com.example.expensetracker.features.wallet.WalletType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import android.content.Intent
+import android.widget.ProgressBar
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,10 +42,24 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
     private lateinit var tvTotalIncome: TextView
     private lateinit var tvTotalExpense: TextView
     private lateinit var rvTransactions: RecyclerView
-    private lateinit var progressBar: android.widget.ProgressBar
-    private lateinit var tvEmptyState: android.widget.TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var tvEmptyState: TextView
     private lateinit var layoutDateFilter: LinearLayout
     private lateinit var tvDateRange: TextView
+
+    private val detailActivityLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            if (data?.getBooleanExtra("ACTION_DELETE", false) == true) {
+                val transactionId = data.getIntExtra("TRANSACTION_ID", -1)
+                if (transactionId != -1) {
+                    controller.deleteTransaction(transactionId)
+                }
+            }
+        }
+    }
 
     private lateinit var repository: TransactionRepository
     private lateinit var adapter: TransactionHistoryAdapter
@@ -71,9 +89,17 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
         repository = TransactionRepository(apiService)
         controller = TransactionHistoryController(this, this)
 
-        adapter = TransactionHistoryAdapter(mutableListOf()) { transaction ->
-            deleteTransaction(transaction)
-        }
+        adapter = TransactionHistoryAdapter(
+            mutableListOf(),
+            onItemClick = { transaction ->
+                val intent = Intent(this, TransactionDetailActivity::class.java)
+                intent.putExtra("TRANSACTION_DATA", Gson().toJson(transaction))
+                detailActivityLauncher.launch(intent)
+            },
+            onDeleteClick = { transaction ->
+                deleteTransaction(transaction)
+            }
+        )
         rvTransactions.layoutManager = LinearLayoutManager(this)
         rvTransactions.adapter = adapter
 
@@ -323,6 +349,6 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
 
     override fun onDeleteSuccess(transactionId: Int) {
         Toast.makeText(this, "Xóa giao dịch thành công", Toast.LENGTH_SHORT).show()
-        controller.fetchTransactions(currentType)
+        controller.fetchTransactions(currentType, filterStartDate, filterEndDate)
     }
 }
