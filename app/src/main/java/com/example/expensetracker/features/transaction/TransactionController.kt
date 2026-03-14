@@ -70,6 +70,58 @@ class TransactionController(
         }
     }
 
+    /** Cập nhật giao dịch */
+    fun updateTransaction(
+        id: Int,
+        walletId: Int,
+        categoryId: Int,
+        amount: Double,
+        date: String,
+        note: String? = null,
+        currency: String? = null
+    ) {
+        Log.d(TAG, "updateTransaction: Đang cập nhật giao dịch ID $id...")
+        listener.onLoading(true)
+
+        val walletIdBody = walletId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val categoryIdBody = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val amountBody = amount.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val dateBody = date.toRequestBody("text/plain".toMediaTypeOrNull())
+        val noteBody = note?.toRequestBody("text/plain".toMediaTypeOrNull())
+        val currencyBody = (currency ?: "VND").toRequestBody("text/plain".toMediaTypeOrNull())
+
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    repository.updateTransaction(
+                        id = id,
+                        walletId = walletIdBody,
+                        categoryId = categoryIdBody,
+                        amount = amountBody,
+                        transactionDate = dateBody,
+                        note = noteBody,
+                        currency = currencyBody
+                    )
+                }
+                listener.onLoading(false)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        Log.d(TAG, "updateTransaction: Cập nhật thành công ID ${it.id}")
+                        listener.onTransactionUpdated(it)
+                    }
+                } else {
+                    val errorMsg = parseErrorMessage(response.errorBody())
+                    Log.e(TAG, "updateTransaction: $errorMsg")
+                    listener.onError(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "updateTransaction: Lỗi kết nối", e)
+                listener.onLoading(false)
+                listener.onError(e.message ?: "Lỗi kết nối")
+            }
+        }
+    }
+
     /** Quét OCR */
     fun scanOcr(walletId: Int, categoryId: Int, imageFile: File) {
         Log.d(TAG, "scanOcr: Bắt đầu quét OCR...")

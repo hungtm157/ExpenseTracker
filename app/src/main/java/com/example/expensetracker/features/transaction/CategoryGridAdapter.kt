@@ -58,6 +58,13 @@ class CategoryGridAdapter(
         return if (selectedPosition != -1) categories[selectedPosition] else null
     }
 
+    fun setSelectedPosition(position: Int) {
+        val prev = selectedPosition
+        selectedPosition = position
+        notifyItemChanged(prev)
+        notifyItemChanged(selectedPosition)
+    }
+
     fun updateList(newItems: List<CategoryItem>) {
         categories.clear()
         categories.addAll(newItems)

@@ -11,6 +11,7 @@ import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.utils.DateTimeUtils
 import com.google.gson.Gson
 import java.text.DecimalFormat
+import androidx.activity.result.contract.ActivityResultContracts
 
 class TransactionDetailActivity : BaseActivity(R.layout.activity_transaction_detail) {
 
@@ -35,6 +36,19 @@ class TransactionDetailActivity : BaseActivity(R.layout.activity_transaction_det
 
     private var transaction: TransactionModel? = null
     private val moneyFormat = DecimalFormat("#,###")
+
+    private val editLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            if (data?.getBooleanExtra("ACTION_RELOAD", false) == true) {
+                // Chuyển cờ ACTION_RELOAD về màn History và đóng màn Detail
+                setResult(RESULT_OK, data)
+                finish()
+            }
+        }
+    }
 
     override fun initViews() {
         btnBack = findViewById(R.id.btnBack)
@@ -64,7 +78,9 @@ class TransactionDetailActivity : BaseActivity(R.layout.activity_transaction_det
         btnBack.setOnClickListener { finish() }
 
         btnEdit.setOnClickListener {
-            // TODO: Navigate to EditTransaction (nếu có màn edit)
+            val intent = Intent(this, AddTransactionActivity::class.java)
+            intent.putExtra("TRANSACTION_DATA", Gson().toJson(transaction))
+            editLauncher.launch(intent)
         }
 
         btnDelete.setOnClickListener {

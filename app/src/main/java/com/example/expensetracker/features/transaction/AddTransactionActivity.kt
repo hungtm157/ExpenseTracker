@@ -25,6 +25,10 @@ import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.expensetracker.features.transaction.TransactionModel
+import com.google.gson.Gson
+import com.example.expensetracker.utils.DateTimeUtils
+import android.content.Intent
 
 /**
  * AddTransactionActivity — Màn hình thêm giao dịch mới.
@@ -63,6 +67,8 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     private var walletsList = mutableListOf<WalletModel>()
     private var selectedWallet: WalletModel? = null
+
+    private var editingTransaction: TransactionModel? = null
 
     override fun initViews() {
         btnClose = findViewById(R.id.btnClose)
@@ -109,6 +115,36 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         // Load Initial Categories & Wallets
         loadCategories("EXPENSE")
         loadWallets()
+
+        // Check for edit mode
+        val transactionJson = intent.getStringExtra("TRANSACTION_DATA")
+        if (!transactionJson.isNullOrEmpty()) {
+            editingTransaction = Gson().fromJson(transactionJson, TransactionModel::class.java)
+            setupEditMode()
+        }
+    }
+
+    private fun setupEditMode() {
+        val tx = editingTransaction ?: return
+        
+        // Cập nhật Mode (Thu/Chi)
+        isExpense = !tx.category.isIncome
+        updateToggleUI()
+        loadCategories(if (isExpense) "EXPENSE" else "INCOME")
+
+        // Gán dữ liệu cơ bản
+        etAmount.setText(tx.amount.toInt().toString())
+        etNote.setText(tx.note ?: "")
+
+        // Cập nhật Date
+        val parsedDate = DateTimeUtils.parseIsoDate(tx.transactionDate)
+        if (parsedDate != null) {
+            calendar.time = parsedDate
+            updateDateText()
+        }
+
+        // Đổi TEXT btn
+        btnSave.text = "Lưu thay đổi"
     }
 
     override fun initListeners() {
@@ -152,20 +188,37 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (category == null) {
+            // Nếu đang trong quá trình Edit Categories mà Adapter chưa render xong thì Category = null
+            // Ta có thể giữ giá trị category id từ editingTransaction hoặc bắt buộc User đợi load
+            val categoryId = category?.id ?: editingTransaction?.categoryId ?: 0
+            if (categoryId == 0) {
                 Toast.makeText(this, "Vui lòng chọn danh mục", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            controller.createTransaction(
-                token = prefs.authToken,
-                walletId = selectedWallet?.id ?: 0, 
-                categoryId = category.id,
-                amount = amount,
-                date = apiDateFormat.format(calendar.time),
-                note = note,
-                currency = selectedWallet?.currency
-            )
+            if (editingTransaction != null) {
+                // UPDATE MODE
+                controller.updateTransaction(
+                    id = editingTransaction!!.id,
+                    walletId = selectedWallet?.id ?: 0, 
+                    categoryId = categoryId,
+                    amount = amount,
+                    date = apiDateFormat.format(calendar.time),
+                    note = note,
+                    currency = selectedWallet?.currency
+                )
+            } else {
+                // CREATE MODE
+                controller.createTransaction(
+                    token = prefs.authToken,
+                    walletId = selectedWallet?.id ?: 0, 
+                    categoryId = categoryId,
+                    amount = amount,
+                    date = apiDateFormat.format(calendar.time),
+                    note = note,
+                    currency = selectedWallet?.currency
+                )
+            }
         }
 
         btnOcr.setOnClickListener {
@@ -270,6 +323,13 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     override fun onCategoriesLoaded(items: List<CategoryItem>) {
         categoryAdapter.updateList(items)
+        if (editingTransaction != null) {
+            val selectedIndex = items.indexOfFirst { it.id == editingTransaction?.categoryId }
+            if (selectedIndex != -1) {
+                categoryAdapter.setSelectedPosition(selectedIndex)
+                rvCategories.scrollToPosition(selectedIndex)
+            }
+        }
     }
 
     override fun onCategoryAdded(item: CategoryItem) {}
@@ -280,10 +340,13 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     override fun onTransactionCreated(transaction: TransactionModel) {
         Toast.makeText(this, "Đã lưu giao dịch!", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK, Intent().apply { putExtra("ACTION_RELOAD", true) })
         finish()
     }
 
     override fun onTransactionUpdated(transaction: TransactionModel) {
+        Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK, Intent().apply { putExtra("ACTION_RELOAD", true) })
         finish()
     }
 

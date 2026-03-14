@@ -58,6 +58,9 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
                     controller.deleteTransaction(transactionId)
                 }
             }
+            if (data?.getBooleanExtra("ACTION_RELOAD", false) == true) {
+                controller.fetchTransactions(currentType, filterStartDate, filterEndDate)
+            }
         }
     }
 
