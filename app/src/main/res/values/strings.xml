@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Monety</string>
+    <string name="budget_category_prompt">Chọn danh mục chi tiêu</string>
 </resources>

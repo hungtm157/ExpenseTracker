@@ -52,6 +52,9 @@
         <!-- Wallet -->
         <activity android:name=".features.wallet.WalletActivity" />
 
+        <!-- Budget -->
+        <activity android:name=".features.plan.AddBudgetActivity" />
+
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
 
