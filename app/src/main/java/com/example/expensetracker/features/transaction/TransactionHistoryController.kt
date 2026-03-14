@@ -26,7 +26,7 @@ class TransactionHistoryController(
     }
 
     /** Lấy danh sách giao dịch từ API */
-    fun fetchTransactions(type: String? = null) {
+    fun fetchTransactions(type: String? = null, fromDate: String? = null, toDate: String? = null) {
         val token = App.instance.preferences.authToken
 
         if (token.isNullOrEmpty()) {
@@ -41,7 +41,9 @@ class TransactionHistoryController(
                 val response = transactionRepository.getTransactions(
                     token = token,
                     page = 1,
-                    type = type
+                    type = type,
+                    fromDate = fromDate,
+                    toDate = toDate
                 )
 
                 withContext(Dispatchers.Main) {
