@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_green"
+    android:background="#00C896"
     >
 
     <!-- Header -->
@@ -85,24 +85,25 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnOcr"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="50dp"
                 android:background="@drawable/bg_button_green"
                 android:backgroundTint="#4DFFFFFF"
-                android:drawableStart="@drawable/ic_statistics"
+                android:drawableStart="@android:drawable/ic_menu_camera"
                 android:drawablePadding="8dp"
                 android:paddingHorizontal="24dp"
                 android:text="Quét hóa đơn (OCR)"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 app:tint="@color/white" />
 
-            <!-- Wallet Selection Section -->
+            <!-- Wallet Selection Section (Hiding this to match UI) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnWalletSelector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:visibility="gone"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
@@ -333,13 +334,15 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Save Button (Optional but good for UX) -->
+            <!-- Save Button -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="54dp"
                 android:layout_marginTop="24dp"
+                app:cornerRadius="27dp"
                 android:background="@drawable/bg_button_green"
+                android:backgroundTint="#009966"
                 android:text="Lưu giao dịch"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"

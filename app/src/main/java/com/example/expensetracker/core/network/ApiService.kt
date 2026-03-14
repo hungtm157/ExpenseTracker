@@ -159,4 +159,25 @@ interface ApiService {
     @DELETE("api/v1/transactions/{id}")
     suspend fun deleteTransaction(@Path("id") id: Int): Response<Void>
 
+    // ─── Budget ──────────────────────────────────────────────────────────────
+
+    @GET("api/v1/budgets")
+    suspend fun getBudgets(): Response<com.example.expensetracker.features.plan.BudgetListResponse>
+
+    @POST("api/v1/budgets")
+    suspend fun createBudget(
+        @Body request: com.example.expensetracker.features.plan.BudgetCreateRequest
+    ): Response<com.example.expensetracker.features.plan.BudgetModel>
+
+    @PATCH("api/v1/budgets/{id}/complete")
+    suspend fun completeBudget(
+        @Path("id") id: Int
+    ): Response<com.example.expensetracker.features.plan.BudgetModel>
+
+    @PATCH("api/v1/budgets/{id}")
+    suspend fun updateBudget(
+        @Path("id") id: Int,
+        @Body request: com.example.expensetracker.features.plan.BudgetUpdateRequest
+    ): Response<com.example.expensetracker.features.plan.BudgetModel>
+
 }
