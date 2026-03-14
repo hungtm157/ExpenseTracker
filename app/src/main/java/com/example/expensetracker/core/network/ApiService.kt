@@ -1,7 +1,7 @@
 package com.example.expensetracker.core.network
 
-import com.example.expensetracker.data.models.CategoryItem
 import com.example.expensetracker.data.models.CategoryListResponse
+import com.example.expensetracker.data.models.CategoryItem
 import com.example.expensetracker.data.models.ErrorResponse
 import com.example.expensetracker.data.models.ForgotPasswordRequest
 import com.example.expensetracker.data.models.ForgotPasswordResponse
@@ -60,7 +60,6 @@ interface ApiService {
 
     @GET("api/v1/categories")
     suspend fun getCategories(
-        @Header("Authorization") token: String,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 100,
         @Query("type") type: String
@@ -69,7 +68,6 @@ interface ApiService {
     @retrofit2.http.Multipart
     @POST("api/v1/categories")
     suspend fun createCategory(
-        @Header("Authorization") token: String,
         @retrofit2.http.Part("name") name: okhttp3.RequestBody,
         @retrofit2.http.Part("type") type: okhttp3.RequestBody,
         @retrofit2.http.Part icon: okhttp3.MultipartBody.Part?
@@ -78,7 +76,6 @@ interface ApiService {
     @retrofit2.http.Multipart
     @PATCH("api/v1/categories/{id}")
     suspend fun updateCategory(
-        @Header("Authorization") token: String,
         @retrofit2.http.Path("id") id: Int,
         @retrofit2.http.Part("name") name: okhttp3.RequestBody?,
         @retrofit2.http.Part("type") type: okhttp3.RequestBody?,
@@ -88,7 +85,6 @@ interface ApiService {
 
     @DELETE("api/v1/categories/{id}")
     suspend fun deleteCategory(
-        @Header("Authorization") token: String,
         @retrofit2.http.Path("id") id: Int
     ): Response<ErrorResponse>
 
@@ -117,13 +113,12 @@ interface ApiService {
 
     @DELETE("api/v1/wallets/{id}")
     suspend fun deleteWallet(@Path("id") id: Int): Response<WalletDeleteResponse>
-
     // ─── Transaction ─────────────────────────────────────────────────────────
 
     @GET("api/v1/transactions")
     suspend fun getTransactions(
         @Query("page") page: Int? = 1,
-        @Query("limit") limit: Int? = 20,
+        @Query("limit") limit: Int = Int.MAX_VALUE,
         @Query("sort") sort: String? = "date_desc",
         @Query("search") search: String? = null,
         @Query("type") type: String? = null,
@@ -134,16 +129,9 @@ interface ApiService {
         @Query("source") source: String? = null
     ): Response<TransactionListResponse>
 
-    @Multipart
     @POST("api/v1/transactions")
     suspend fun createTransaction(
-        @Part("wallet_id") walletId: RequestBody,
-        @Part("category_id") categoryId: RequestBody,
-        @Part("amount") amount: RequestBody,
-        @Part("transaction_date") transactionDate: RequestBody,
-        @Part("note") note: RequestBody? = null,
-        @Part("currency") currency: RequestBody? = null,
-        @Part receiptImage: MultipartBody.Part? = null
+        @Body request: TransactionCreateRequest
     ): Response<TransactionModel>
 
     @Multipart

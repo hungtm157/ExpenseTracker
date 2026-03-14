@@ -1,5 +1,7 @@
 package com.example.expensetracker.features.transaction
 
+import com.example.expensetracker.data.models.CategoryItem
+import com.example.expensetracker.features.wallet.WalletModel
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -17,7 +19,9 @@ data class TransactionModel(
     @SerializedName("receipt_image_url") val receiptImageUrl: String?,
     @SerializedName("status") val status: TransactionStatus,
     @SerializedName("transaction_date") val transactionDate: String, // String for ISO format from backend
-    @SerializedName("createdAt") val createdAt: String? = null
+    @SerializedName("createdAt") val createdAt: String? = null,
+    @SerializedName("category") val category: CategoryItem,
+    @SerializedName("wallet") val wallet: WalletModel
 )
 
 enum class TransactionSource {

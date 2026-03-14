@@ -8,6 +8,8 @@ import com.example.expensetracker.features.more.MoreFragment
 import com.example.expensetracker.features.plan.PlanFragment
 import com.example.expensetracker.features.statistics.StatisticsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.expensetracker.features.transaction.AddTransactionActivity
+import android.content.Intent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
@@ -55,8 +57,8 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         }
 
         fab.setOnClickListener {
-            Toast.makeText(this, "Ghi giao dịch mới", Toast.LENGTH_SHORT).show()
-            // TODO: startActivity(Intent(this, AddTransactionActivity::class.java))
+            val intent = Intent(this, AddTransactionActivity::class.java)
+            startActivity(intent)
         }
     }
 
