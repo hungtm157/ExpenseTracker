@@ -1,9 +1,61 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.ExpenseTracker" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/green_mid</item>
+        <item name="colorPrimaryVariant">@color/green_end</item>
+        <item name="colorSecondary">@color/green_start</item>
     </style>
 
-    <style name="Theme.ExpenseTracker" parent="Base.Theme.ExpenseTracker" />
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/green_mid</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
+    </style>
+
+    <style name="Theme.ExpenseTracker" parent="Base.Theme.ExpenseTracker">
+        <!-- Tùy chỉnh màu sắc Bottom Navigation -->
+        <item name="colorOnSurfaceVariant">@color/nav_inactive</item>
+    </style>
+
+    <!-- Style để xóa nền pill (indicator) của BottomNavigationView -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemActiveIndicatorStyle">@style/App.Indicator</item>
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+    </style>
+
+    <style name="App.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+
+    <!-- // Note: Định nghĩa hình dạng cho FAB - hình tròn hoàn hảo (50%) -->
+    <style name="ShapeAppearance.App.FAB.Circle" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- // Note: Định nghĩa hình dạng cho BottomAppBar - bo góc trên 20dp, góc dưới 0dp -->
+    <style name="ShapeAppearance.App.BottomAppBar.RoundedTop" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+    <style name="CustomAlertDialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+
+    <style name="CustomBottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Material3.BottomSheet">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
 </resources>

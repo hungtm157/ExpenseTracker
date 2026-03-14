@@ -3,6 +3,7 @@ package com.example.expensetracker.core.base
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 /**
  * BaseActivity — lớp nền cho mọi Activity trong ứng dụng.
@@ -11,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 abstract class BaseActivity(@LayoutRes private val layoutResId: Int) : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         setContentView(layoutResId)
         initViews()

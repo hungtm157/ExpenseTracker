@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tab titles (Bottom Navigation) -->
+    <string name="title_home">Tổng quan</string>
+    <string name="title_statistics">Thống kê</string>
+    <string name="title_plan">Kế hoạch</string>
+    <string name="title_more">Khác</string>
+
+    <!-- HomeFragment -->
+    <string name="hello_user">Xin chào, Sáng 👋</string>
+    <string name="month_label">Tháng</string>
+    <string name="current_month">02/2026</string>
+    <string name="expense">Chi tiêu</string>
+    <string name="income">Thu nhập</string>
+    <string name="loan_debt">Mượn/Nợ</string>
+    <string name="budget_safe_msg">Bạn đang chi tiêu AN TOÀN</string>
+    <string name="used_label">Đã dùng:</string>
+    <string name="remaining_label">Còn lại:</string>
+    <string name="today_expense_label">Chi tiêu hôm nay (05/02)</string>
+    <string name="top_categories_label">Top 3 danh mục tháng này</string>
+    <string name="btn_add_transaction">+ Ghi giao dịch</string>
+
+    <!-- StatisticsFragment -->
+    <string name="stats_subtitle">Phân tích chi tiêu của bạn</string>
+    <string name="stats_tab_week">Tuần</string>
+    <string name="stats_tab_month">Tháng</string>
+    <string name="stats_tab_year">Năm</string>
+    <string name="stats_chart_coming_soon">Biểu đồ thống kê\nđang được phát triển</string>
+
+    <!-- PlanFragment -->
+    <string name="plan_subtitle">Quản lý ngân sách theo danh mục</string>
+    <string name="plan_budget_label">Ngân sách tháng này</string>
+    <string name="plan_edit">Chỉnh sửa</string>
+    <string name="plan_categories_label">Ngân sách theo danh mục</string>
+
+    <!-- MoreFragment -->
+    <string name="more_user_name">Người dùng</string>
+    <string name="more_user_email">user@example.com</string>
+    <string name="more_section_account">Tài khoản</string>
+    <string name="more_section_settings">Cài đặt</string>
+    <string name="more_menu_profile">Thông tin cá nhân</string>
+    <string name="more_menu_wallet">Tài khoản ví</string>
+    <string name="more_menu_settings">Thiết lập</string>
+    <string name="more_menu_language">Ngôn ngữ</string>
+    <string name="more_logout">Đăng xuất</string>
+
+    <!-- MoreFragment redesign -->
+    <string name="more_title">Cài đặt</string>
+    <string name="more_finance_overview">Tổng quan tài chính</string>
+    <string name="more_total_expense">Tổng chi tiêu:</string>
+    <string name="more_total_income">Tổng thu nhập:</string>
+    <string name="more_balance">Số dư:</string>
+    <string name="more_transaction_count">Giao dịch:</string>
+    <string name="more_menu_categories">Quản lý danh mục</string>
+    <string name="more_menu_notifications">Thông báo</string>
+    <string name="more_menu_security">Bảo mật</string>
+    <string name="more_menu_about">Về ứng dụng</string>
+
+    <!-- CategoryActivity -->
+    <string name="category_title">Quản lý danh mục</string>
+</resources>

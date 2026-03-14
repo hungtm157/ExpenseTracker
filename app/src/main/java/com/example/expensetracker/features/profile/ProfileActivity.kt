@@ -14,13 +14,13 @@ import com.example.expensetracker.features.profile.ProfileController.ProfileList
  */
 class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener {
 
-    private lateinit var tvUserName : TextView
-    private lateinit var btnLogout  : Button
-    private lateinit var controller : ProfileController
+    private lateinit var tvUserName: TextView
+    private lateinit var btnLogout: Button
+    private lateinit var controller: ProfileController
 
     override fun initViews() {
         tvUserName = findViewById(R.id.tvUserName)
-        btnLogout  = findViewById(R.id.btnLogout)
+        btnLogout = findViewById(R.id.btnLogout)
 
         val prefs = AppPreferences(this)
         controller = ProfileController(prefs, this)

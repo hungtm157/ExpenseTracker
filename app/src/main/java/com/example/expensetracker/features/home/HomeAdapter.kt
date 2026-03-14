@@ -19,9 +19,9 @@ class HomeAdapter(
 ) : RecyclerView.Adapter<HomeAdapter.ExpenseViewHolder>() {
 
     inner class ExpenseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle   : TextView = view.findViewById(R.id.tvTitle)
-        val tvAmount  : TextView = view.findViewById(R.id.tvAmount)
-        val tvDate    : TextView = view.findViewById(R.id.tvDate)
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
+        val tvDate: TextView = view.findViewById(R.id.tvDate)
         val tvCategory: TextView = view.findViewById(R.id.tvCategory)
     }
 
@@ -33,9 +33,9 @@ class HomeAdapter(
 
     override fun onBindViewHolder(holder: ExpenseViewHolder, position: Int) {
         val expense = items[position]
-        holder.tvTitle.text    = expense.title
-        holder.tvAmount.text   = expense.amount.toCurrencyString()
-        holder.tvDate.text     = DateUtils.formatDate(expense.date)
+        holder.tvTitle.text = expense.title
+        holder.tvAmount.text = expense.amount.toCurrencyString()
+        holder.tvDate.text = DateUtils.formatDate(expense.date)
         holder.tvCategory.text = expense.category
         holder.itemView.setOnClickListener { onItemClick(expense) }
     }

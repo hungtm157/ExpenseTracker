@@ -10,7 +10,7 @@ import java.util.Locale
 object DateUtils {
 
     private const val DEFAULT_FORMAT = "dd/MM/yyyy"
-    private const val FULL_FORMAT    = "dd/MM/yyyy HH:mm"
+    private const val FULL_FORMAT = "dd/MM/yyyy HH:mm"
 
     /** Định dạng timestamp (ms) thành chuỗi ngày dd/MM/yyyy */
     fun formatDate(timestamp: Long, pattern: String = DEFAULT_FORMAT): String {

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -11,24 +13,47 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExpenseTracker">
+        android:theme="@style/Theme.App.Starting">
 
-        <!-- Entry point -->
+        <!-- Entry point — redirect to Login or Home -->
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Auth -->
+        <activity
+            android:name=".features.auth.login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Auth -->
-        <activity android:name=".features.auth.login.LoginActivity" />
         <activity android:name=".features.auth.register.RegisterActivity" />
+        <activity android:name=".features.auth.otp.OtpActivity" />
+        <activity android:name=".features.auth.forgotpassword.ForgotPasswordActivity" />
+        <activity android:name=".features.auth.forgotpassword.ForgotPasswordOtpActivity" />
+        <activity android:name=".features.auth.forgotpassword.ResetPasswordActivity" />
+
+
+
+
+
 
         <!-- Home -->
         <activity android:name=".features.home.HomeActivity" />
+        <activity android:name=".features.transaction.AddTransactionActivity" />
+        <activity android:name=".features.transaction.TransactionHistoryActivity" />
+        <activity android:name=".features.transaction.TransactionDetailActivity" />
+        <activity
+            android:name=".features.category.CategoryActivity"
+            android:windowSoftInputMode="adjustResize" />
+        
+        <!-- Wallet -->
+        <activity android:name=".features.wallet.WalletActivity" />
+
+        <!-- Budget -->
+        <activity android:name=".features.plan.AddBudgetActivity" />
 
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
