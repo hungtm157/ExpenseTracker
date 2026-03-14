@@ -27,7 +27,6 @@ class CategoryRepository {
      */
     suspend fun getCategories(token: String, type: String): Response<CategoryListResponse> {
         return api.getCategories(
-            token = "Bearer $token",
             page = 1,
             limit = 100,
             type = type
@@ -49,7 +48,6 @@ class CategoryRepository {
         val imagePart = prepareImagePart(context, imageUri)
 
         return api.createCategory(
-            token = "Bearer $token",
             name = nameBody,
             type = typeBody,
             icon = imagePart
@@ -74,7 +72,6 @@ class CategoryRepository {
         val imagePart = prepareImagePart(context, imageUri)
 
         return api.updateCategory(
-            token = "Bearer $token",
             id = id,
             name = nameBody,
             type = typeBody,
@@ -88,7 +85,6 @@ class CategoryRepository {
      */
     suspend fun deleteCategory(token: String, id: Int): Response<ErrorResponse> {
         return api.deleteCategory(
-            token = "Bearer $token",
             id = id
         )
     }

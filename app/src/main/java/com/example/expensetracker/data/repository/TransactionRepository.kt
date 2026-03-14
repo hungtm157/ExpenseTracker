@@ -13,8 +13,9 @@ class TransactionRepository(private val apiService: ApiService) {
 
     /** Lấy danh sách giao dịch */
     suspend fun getTransactions(
+        token: String,
         page: Int = 1,
-        limit: Int = 20,
+        limit: Int = Int.MAX_VALUE,
         sort: String? = "date_desc",
         search: String? = null,
         type: String? = null,
@@ -31,10 +32,9 @@ class TransactionRepository(private val apiService: ApiService) {
 
     /** Tạo giao dịch mới (JSON) */
     suspend fun createTransaction(
-        token: String,
         request: TransactionCreateRequest
     ): Response<TransactionModel> {
-        return apiService.createTransaction("Bearer $token", request)
+        return apiService.createTransaction(request)
     }
 
     /** Quét OCR hóa đơn */

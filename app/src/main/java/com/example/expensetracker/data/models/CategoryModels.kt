@@ -36,6 +36,8 @@ data class CategoryItem(
     /** true nếu đang hoạt động */
     val isActive: Boolean get() = status == "ACTIVATE"
 
+    val isIncome: Boolean get() = type == "INCOME"
+
     /** Text hiển thị bên dưới tên: "Mặc định • Đang dùng", "Đang dùng", "Không dùng"... */
     val metaText: String get() {
         val statusLabel = if (isActive) "Đang dùng" else "Không dùng"

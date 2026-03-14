@@ -49,7 +49,7 @@ class TransactionController(
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    repository.createTransaction(token, request)
+                    repository.createTransaction(request)
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
