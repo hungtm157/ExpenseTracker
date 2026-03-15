@@ -291,12 +291,12 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private fun updateToggleUI() {
         if (isExpense) {
             btnExpense.setBackgroundResource(R.drawable.bg_tab_selected)
-            btnExpense.setTextColor(resources.getColor(R.color.green_mid, null))
+            btnExpense.setTextColor(resources.getColor(R.color.red, null))
             btnIncome.background = null
             btnIncome.setTextColor(resources.getColor(R.color.white, null))
         } else {
             btnIncome.setBackgroundResource(R.drawable.bg_tab_selected)
-            btnIncome.setTextColor(resources.getColor(R.color.green_mid, null))
+            btnIncome.setTextColor(resources.getColor(R.color.red, null))
             btnExpense.background = null
             btnExpense.setTextColor(resources.getColor(R.color.white, null))
         }

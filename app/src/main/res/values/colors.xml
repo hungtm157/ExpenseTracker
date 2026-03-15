@@ -11,4 +11,5 @@
     <color name="divider_color">#E0E0E0</color>
     <color name="nav_active">#00C896</color>
     <color name="nav_inactive">#9E9E9E</color>
+    <color name="red">#FF5252</color>
 </resources>
