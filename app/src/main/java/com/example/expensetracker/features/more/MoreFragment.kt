@@ -39,7 +39,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more) {
 
     override fun initListeners() {
         menuProfile.setOnClickListener {
-            Toast.makeText(requireContext(), "Thông tin cá nhân", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(requireContext(), com.example.expensetracker.features.profile.ProfileActivity::class.java))
         }
         menuCategories.setOnClickListener {
             startActivity(Intent(requireContext(), CategoryActivity::class.java))
