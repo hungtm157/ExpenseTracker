@@ -19,6 +19,7 @@ class AppPreferences(context: Context) {
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
+        private const val KEY_HAS_SEEN_INTRO = "has_seen_intro"
     }
 
     var userId: Long
@@ -36,6 +37,10 @@ class AppPreferences(context: Context) {
     var isLoggedIn: Boolean
         get() = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
         set(value) = prefs.edit().putBoolean(KEY_IS_LOGGED_IN, value).apply()
+
+    var hasSeenIntro: Boolean
+        get() = prefs.getBoolean(KEY_HAS_SEEN_INTRO, false)
+        set(value) = prefs.edit().putBoolean(KEY_HAS_SEEN_INTRO, value).apply()
 
     /** Xóa toàn bộ dữ liệu khi đăng xuất */
     fun clear() = prefs.edit().clear().apply()

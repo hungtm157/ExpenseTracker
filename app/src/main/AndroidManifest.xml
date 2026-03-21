@@ -22,13 +22,16 @@
 
         <!-- Auth -->
         <activity
-            android:name=".features.auth.login.LoginActivity"
+            android:name=".features.intro.IntroSliderActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".features.auth.login.LoginActivity"
+            android:exported="false" />
         <activity android:name=".features.auth.register.RegisterActivity" />
         <activity android:name=".features.auth.otp.OtpActivity" />
         <activity android:name=".features.auth.forgotpassword.ForgotPasswordActivity" />
