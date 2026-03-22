@@ -500,9 +500,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         // Điền ghi chú
         etNote.setText(data.note ?: "")
 
-        // Parse & điền ngày (server trả dd-MM-yyyy)
+        // Parse & điền ngày (server trả yyyy-MM-dd)
         try {
-            val ocrDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+            val ocrDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             val parsedDate = ocrDateFormat.parse(data.transactionDate)
             if (parsedDate != null) {
                 calendar.time = parsedDate
