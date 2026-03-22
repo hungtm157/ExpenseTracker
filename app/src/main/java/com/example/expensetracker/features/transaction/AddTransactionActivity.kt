@@ -84,6 +84,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private var cameraImageUri: Uri? = null
     private var cameraImageFile: File? = null
 
+    // Loading Dialog
+    private var loadingDialog: AlertDialog? = null
+
     /** Launcher chụp ảnh camera → gửi scan invoice */
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success && cameraImageFile != null) {
@@ -521,6 +524,33 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     override fun onLoading(isLoading: Boolean) {
         btnSave.isEnabled = !isLoading
+        if (isLoading) {
+            showLoadingDialog()
+        } else {
+            hideLoadingDialog()
+        }
+    }
+
+    private fun showLoadingDialog() {
+        if (loadingDialog == null) {
+            val progressBar = ProgressBar(this).apply {
+                isIndeterminate = true
+                setPadding(0, 50, 0, 50)
+            }
+            loadingDialog = AlertDialog.Builder(this)
+                .setTitle("Đang xử lý")
+                .setMessage("Vui lòng đợi trong giây lát...")
+                .setView(progressBar)
+                .setCancelable(false)
+                .create()
+        }
+        if (loadingDialog?.isShowing == false) {
+            loadingDialog?.show()
+        }
+    }
+
+    private fun hideLoadingDialog() {
+        loadingDialog?.dismiss()
     }
 
     override fun onError(message: String) {
