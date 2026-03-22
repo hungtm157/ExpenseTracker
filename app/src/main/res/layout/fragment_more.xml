@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="52dp"
+            android:layout_marginTop="22dp"
             android:layout_marginBottom="24dp"
             android:text="@string/more_title"
             android:textColor="@color/white"
@@ -51,6 +51,7 @@
                     android:background="@drawable/bg_avatar_circle">
 
                     <TextView
+                        android:id="@+id/tvAvatarInitials"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -58,6 +59,12 @@
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop" />
                 </FrameLayout>
 
                 <!-- Tên + email -->
@@ -98,68 +105,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card 2: Ngân sách tháng -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card_white_rounded"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Hàng tiêu đề -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_wallet"
-                        app:tint="@color/green_mid"
-                        tools:ignore="ContentDescription" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="@string/plan_budget_label"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tvEditBudget"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/plan_edit"
-                        android:textColor="@color/green_mid"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Số tiền ngân sách -->
-                <TextView
-                    android:id="@+id/tvBudgetAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="5.000.000"
-                    android:textColor="@color/text_primary"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
         <!-- Card 3: Tổng quan tài chính -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -184,6 +129,32 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+
+                <!-- Số dư -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/more_balance"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="13.450.000"
+                        android:textColor="@color/green_mid"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <!-- Tổng chi tiêu -->
                 <LinearLayout
@@ -250,32 +221,6 @@
                     android:layout_height="1dp"
                     android:layout_marginBottom="10dp"
                     android:background="#F2F2F2" />
-
-                <!-- Số dư -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/more_balance"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tvBalance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="13.450.000"
-                        android:textColor="@color/green_mid"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
 
                 <!-- Divider -->
                 <View

@@ -134,12 +134,12 @@ class CategoryController(private val listener: CategoryListener) {
      * Helper trích xuất thông báo lỗi từ JSON body của API.
      */
     private fun parseErrorMessage(errorBody: ResponseBody?): String {
+        val errorJson = errorBody?.string() ?: return "Đã có lỗi xảy ra"
         return try {
-            val errorJson = errorBody?.string()
             val errorResponse = Gson().fromJson(errorJson, ErrorResponse::class.java)
             errorResponse.message
         } catch (e: Exception) {
-            "Đã có lỗi xảy ra, vui lòng thử lại"
+            if (errorJson.length < 100) errorJson else "Đã có lỗi xảy ra, vui lòng thử lại"
         }
     }
 

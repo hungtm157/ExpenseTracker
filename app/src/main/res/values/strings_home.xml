@@ -47,9 +47,9 @@
     <!-- MoreFragment redesign -->
     <string name="more_title">Cài đặt</string>
     <string name="more_finance_overview">Tổng quan tài chính</string>
+    <string name="more_balance">Tổng số dư:</string>
     <string name="more_total_expense">Tổng chi tiêu:</string>
     <string name="more_total_income">Tổng thu nhập:</string>
-    <string name="more_balance">Số dư:</string>
     <string name="more_transaction_count">Giao dịch:</string>
     <string name="more_menu_categories">Quản lý danh mục</string>
     <string name="more_menu_notifications">Thông báo</string>

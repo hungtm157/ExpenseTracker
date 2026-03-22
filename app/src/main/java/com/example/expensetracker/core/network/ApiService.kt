@@ -13,6 +13,9 @@ import com.example.expensetracker.data.models.ScanInvoiceApiResponse
 import com.example.expensetracker.data.models.RegisterRequest
 import com.example.expensetracker.data.models.RegisterResponse
 import com.example.expensetracker.data.models.ResetPasswordRequest
+import com.example.expensetracker.data.models.UpdateNameRequest
+import com.example.expensetracker.data.models.ProfileApiResponse
+import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.models.VerifyOtpRequest
 import com.example.expensetracker.data.models.VerifyOtpResponse
 import com.example.expensetracker.features.transaction.*
@@ -57,6 +60,18 @@ interface ApiService {
     @POST("api/v1/auth/reset-password")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<ForgotPasswordResponse>
 
+    // ─── User Profile ────────────────────────────────────────────────────────
+
+    @GET("api/v1/user/profile")
+    suspend fun getProfile(): Response<ProfileApiResponse>
+
+    @PATCH("api/v1/user/update-name")
+    suspend fun updateName(@Body request: UpdateNameRequest): Response<ProfileApiResponse>
+
+    @Multipart
+    @PATCH("api/v1/user/update-avatar")
+    suspend fun updateAvatar(@Part avatar: MultipartBody.Part?): Response<ProfileApiResponse>
+
     // ─── Categories ──────────────────────────────────────────────────────────
 
     @GET("api/v1/categories")
@@ -66,27 +81,27 @@ interface ApiService {
         @Query("type") type: String
     ): Response<CategoryListResponse>
 
-    @retrofit2.http.Multipart
+    @Multipart
     @POST("api/v1/categories")
     suspend fun createCategory(
-        @retrofit2.http.Part("name") name: okhttp3.RequestBody,
-        @retrofit2.http.Part("type") type: okhttp3.RequestBody,
-        @retrofit2.http.Part icon: okhttp3.MultipartBody.Part?
+        @Part("name") name: RequestBody,
+        @Part("type") type: RequestBody,
+        @Part icon: MultipartBody.Part?
     ): Response<CategoryItem>
 
-    @retrofit2.http.Multipart
+    @Multipart
     @PATCH("api/v1/categories/{id}")
     suspend fun updateCategory(
-        @retrofit2.http.Path("id") id: Int,
-        @retrofit2.http.Part("name") name: okhttp3.RequestBody?,
-        @retrofit2.http.Part("type") type: okhttp3.RequestBody?,
-        @retrofit2.http.Part("status") status: okhttp3.RequestBody?,
-        @retrofit2.http.Part icon: okhttp3.MultipartBody.Part?
+        @Path("id") id: Int,
+        @Part("name") name: RequestBody?,
+        @Part("type") type: RequestBody?,
+        @Part("status") status: RequestBody?,
+        @Part icon: MultipartBody.Part?
     ): Response<CategoryItem>
 
     @DELETE("api/v1/categories/{id}")
     suspend fun deleteCategory(
-        @retrofit2.http.Path("id") id: Int
+        @Path("id") id: Int
     ): Response<ErrorResponse>
 
     @GET("ping")
@@ -178,5 +193,39 @@ interface ApiService {
         @Path("id") id: Int,
         @Body request: com.example.expensetracker.features.plan.BudgetUpdateRequest
     ): Response<com.example.expensetracker.features.plan.BudgetModel>
+
+    // ─── Statistic ──────────────────────────────────────────────────────────────
+
+    @GET("api/v1/statistics/general")
+    suspend fun getStatisticsGeneral(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.GeneralStatisticsResponse>
+
+    @GET("api/v1/statistics/by-category")
+    suspend fun getStatisticsByCategory(
+        @Query("type") type: String, // INCOME | EXPENSE
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsByCategoryResponse>
+
+    @GET("api/v1/statistics/trend")
+    suspend fun getStatisticsTrend(
+        @Query("period") period: String, // daily | monthly
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsTrendResponse>
+
+    @GET("api/v1/statistics/expense-to-balance-ratio")
+    suspend fun getStatisticsExpenseToBalanceRatio(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsExpenseToBalanceRatioResponse>
+
+    @GET("api/v1/statistics/income-vs-expense")
+    suspend fun getStatisticsIncomeVsExpense(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsIncomeVsExpenseResponse>
 
 }
