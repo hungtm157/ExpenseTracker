@@ -13,6 +13,7 @@ import com.example.expensetracker.data.models.RegisterRequest
 import com.example.expensetracker.data.models.RegisterResponse
 import com.example.expensetracker.data.models.ResetPasswordRequest
 import com.example.expensetracker.data.models.UpdateNameRequest
+import com.example.expensetracker.data.models.ProfileApiResponse
 import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.models.VerifyOtpRequest
 import com.example.expensetracker.data.models.VerifyOtpResponse
@@ -61,14 +62,14 @@ interface ApiService {
     // ─── User Profile ────────────────────────────────────────────────────────
 
     @GET("api/v1/user/profile")
-    suspend fun getProfile(): Response<UserProfileResponse>
+    suspend fun getProfile(): Response<ProfileApiResponse>
 
     @PATCH("api/v1/user/update-name")
-    suspend fun updateName(@Body request: UpdateNameRequest): Response<UserProfileResponse>
+    suspend fun updateName(@Body request: UpdateNameRequest): Response<ProfileApiResponse>
 
     @Multipart
-    @POST("api/v1/user/update-avatar")
-    suspend fun updateAvatar(@Part avatar: MultipartBody.Part?): Response<UserProfileResponse>
+    @PATCH("api/v1/user/update-avatar")
+    suspend fun updateAvatar(@Part avatar: MultipartBody.Part?): Response<ProfileApiResponse>
 
     // ─── Categories ──────────────────────────────────────────────────────────
 

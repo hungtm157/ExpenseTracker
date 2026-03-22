@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
+import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.data.local.AppPreferences
 import com.example.expensetracker.data.models.CategoryItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -43,8 +44,7 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
     private lateinit var prefs: AppPreferences
     private var isExpenseTab = true
 
-    // BASE_URL đồng bộ với ApiClient/Adapter
-    private val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+
 
     // Biến tạm cho Dialog
     private var selectedImageUri: Uri? = null
@@ -195,7 +195,7 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
                 dialogImgSelected?.visibility = View.VISIBLE
                 dialogImgRemove?.visibility = View.VISIBLE
                 dialogLayoutPlaceholder?.visibility = View.GONE
-                Glide.with(this).load("$BASE_URL$iconUrl").into(dialogImgSelected!!)
+                Glide.with(this).load("${ApiClient.BASE_URL}$iconUrl").into(dialogImgSelected!!)
             }
         }
 

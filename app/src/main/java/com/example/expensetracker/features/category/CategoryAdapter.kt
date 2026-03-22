@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.expensetracker.R
+import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.data.models.CategoryItem
 import com.google.android.material.switchmaterial.SwitchMaterial
 
@@ -21,9 +22,7 @@ class CategoryAdapter(
     private val onStatusChange: (CategoryItem, Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
-    companion object {
-        private const val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
-    }
+
 
     inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val iconContainer: FrameLayout = view.findViewById(R.id.iconContainer)
@@ -52,7 +51,7 @@ class CategoryAdapter(
         val iconUrl = item.iconUrl
         if (!iconUrl.isNullOrBlank()) {
             Glide.with(holder.itemView.context)
-                .load("$BASE_URL$iconUrl")
+                .load("${ApiClient.BASE_URL}$iconUrl")
                 .placeholder(R.drawable.ic_plan)
                 .error(R.drawable.ic_logo_spash)
                 .into(holder.imgCategoryIcon)

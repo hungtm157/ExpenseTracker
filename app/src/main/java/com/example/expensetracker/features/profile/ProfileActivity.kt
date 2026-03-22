@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
+import com.example.expensetracker.App
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.core.network.ApiClient
@@ -45,8 +46,7 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
     private lateinit var controller: ProfileController
     private lateinit var prefs: AppPreferences
 
-    // Constants cho BASE_URL nếu lưu trữ ảnh không full link
-    private val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -55,6 +55,7 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
     }
 
     override fun initViews() {
+        App.instance.preferences.authToken
         btnBack = findViewById(R.id.btnBack)
         ivAvatar = findViewById(R.id.ivAvatar)
         btnEditAvatar = findViewById(R.id.btnEditAvatar)
@@ -154,12 +155,11 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
 
         // Load Avatar
         val fullIconUrl = if (!profile.avatar.isNullOrEmpty()) {
-            if (profile.avatar.startsWith("http")) profile.avatar else BASE_URL + profile.avatar
+            if (profile.avatar.startsWith("https")) profile.avatar else ApiClient.BASE_URL + profile.avatar
         } else null
 
         Glide.with(this)
             .load(fullIconUrl)
-            .signature(ObjectKey(System.currentTimeMillis().toString()))
             .placeholder(R.drawable.ic_logo_splash)
             .error(R.drawable.ic_logo_splash)
             .circleCrop()
@@ -206,12 +206,11 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         
         // Cập nhật Avatar mới ngay lập tức
         val fullIconUrl = if (!profile.avatar.isNullOrEmpty()) {
-            if (profile.avatar.startsWith("http")) profile.avatar else BASE_URL + profile.avatar
+            if (profile.avatar.startsWith("https")) profile.avatar else ApiClient.BASE_URL + profile.avatar
         } else null
 
         Glide.with(this)
             .load(fullIconUrl)
-            .signature(ObjectKey(System.currentTimeMillis().toString()))
             .placeholder(R.drawable.ic_logo_splash)
             .error(R.drawable.ic_logo_splash)
             .circleCrop()

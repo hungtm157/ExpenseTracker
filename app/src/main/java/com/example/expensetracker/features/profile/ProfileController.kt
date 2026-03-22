@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
 import com.example.expensetracker.data.models.ErrorResponse
+import com.example.expensetracker.data.models.UpdateNameRequest
 import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.repository.AuthRepository
 import com.google.gson.Gson
@@ -42,8 +43,11 @@ class ProfileController(
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        listener.onProfileLoaded(it)
+                    val profile = response.body()?.data
+                    if (profile != null) {
+                        listener.onProfileLoaded(profile)
+                    } else {
+                        listener.onError("Không lấy được thông tin người dùng")
                     }
                 } else {
                     val errorMsg = parseErrorMessage(response.errorBody())
@@ -61,14 +65,17 @@ class ProfileController(
         listener.onLoading(true)
         scope.launch {
             try {
-                val request = com.example.expensetracker.data.models.UpdateNameRequest(fullName)
+                val request = UpdateNameRequest(fullName)
                 val response = withContext(Dispatchers.IO) {
                     repository.updateName(request)
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        listener.onNameUpdated(it)
+                    val profile = response.body()?.data
+                    if (profile != null) {
+                        listener.onNameUpdated(profile)
+                    } else {
+                        listener.onNameUpdateError("Không nhận được phản hồi từ server")
                     }
                 } else {
                     val errorMsg = parseErrorMessage(response.errorBody())
@@ -91,8 +98,11 @@ class ProfileController(
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        listener.onAvatarUpdated(it)
+                    val profile = response.body()?.data
+                    if (profile != null) {
+                        listener.onAvatarUpdated(profile)
+                    } else {
+                        listener.onAvatarUpdateError("Không nhận được phản hồi từ server")
                     }
                 } else {
                     val errorMsg = parseErrorMessage(response.errorBody())

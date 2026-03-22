@@ -2,6 +2,7 @@ package com.example.expensetracker.features.auth.login
 
 import android.content.Intent
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -33,10 +34,15 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
 
     private val controller = LoginController(this)
     private var isPasswordVisible = false
+    private val TAG = "LoginActivity"
+
+
 
     override fun initViews() {
+        val preferences = App.instance.preferences
         // Nếu đã đăng nhập trước đó → vào thẳng HomeActivity
-        if (App.instance.preferences.isLoggedIn) {
+        Log.d(TAG, "token: ${preferences.authToken}")
+        if (preferences.isLoggedIn) {
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
             return

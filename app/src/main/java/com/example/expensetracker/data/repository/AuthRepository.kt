@@ -4,23 +4,23 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.example.expensetracker.core.network.ApiService
+import com.example.expensetracker.data.models.ProfileApiResponse
 import com.example.expensetracker.data.models.UpdateNameRequest
-import com.example.expensetracker.data.models.UserProfileResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 
 class AuthRepository(private val apiService: ApiService) {
-    suspend fun getProfile(): Response<UserProfileResponse> {
+    suspend fun getProfile(): Response<ProfileApiResponse> {
         return apiService.getProfile()
     }
 
-    suspend fun updateName(request: UpdateNameRequest): Response<UserProfileResponse> {
+    suspend fun updateName(request: UpdateNameRequest): Response<ProfileApiResponse> {
         return apiService.updateName(request)
     }
 
-    suspend fun updateAvatar(context: Context, imageUri: Uri): Response<UserProfileResponse> {
+    suspend fun updateAvatar(context: Context, imageUri: Uri): Response<ProfileApiResponse> {
         val avatarPart = prepareAvatarPart(context, imageUri)
         return apiService.updateAvatar(avatarPart ?: throw Exception("Không thể xử lý file ảnh"))
     }
@@ -31,7 +31,7 @@ class AuthRepository(private val apiService: ApiService) {
             val contentResolver = context.contentResolver
             val mimeType = contentResolver.getType(uri) ?: "image/*"
             val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
-            
+
             val inputStream = contentResolver.openInputStream(uri)
             val bytes = inputStream?.readBytes()
             inputStream?.close()

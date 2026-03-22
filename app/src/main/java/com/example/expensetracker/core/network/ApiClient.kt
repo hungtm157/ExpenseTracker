@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 object ApiClient {
 
-    private const val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+    const val BASE_URL = "https://baculine-kelsey-nonethically.ngrok-free.dev"
 
     private val authInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()

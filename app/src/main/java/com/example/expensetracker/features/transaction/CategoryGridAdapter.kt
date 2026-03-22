@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.expensetracker.R
+import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.data.models.CategoryItem
 
 /**
@@ -19,7 +20,6 @@ class CategoryGridAdapter(
 ) : RecyclerView.Adapter<CategoryGridAdapter.ViewHolder>() {
 
     private var selectedPosition = -1
-    private val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_category_grid, parent, false)
@@ -30,7 +30,7 @@ class CategoryGridAdapter(
         val category = categories[position]
         
         val fullIconUrl = if (!category.iconUrl.isNullOrEmpty()) {
-            if (category.iconUrl.startsWith("http")) category.iconUrl else BASE_URL + category.iconUrl
+            if (category.iconUrl.startsWith("http")) category.iconUrl else ApiClient.BASE_URL + category.iconUrl
         } else null
 
         Glide.with(holder.itemView.context)
