@@ -198,6 +198,35 @@ interface ApiService {
     // ─── Statistic ──────────────────────────────────────────────────────────────
 
     @GET("api/v1/statistics/general")
-    suspend fun getStatisticsGeneral(): Response<com.example.expensetracker.data.models.GeneralStatisticsResponse>
+    suspend fun getStatisticsGeneral(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.GeneralStatisticsResponse>
+
+    @GET("api/v1/statistics/by-category")
+    suspend fun getStatisticsByCategory(
+        @Query("type") type: String, // INCOME | EXPENSE
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsByCategoryResponse>
+
+    @GET("api/v1/statistics/trend")
+    suspend fun getStatisticsTrend(
+        @Query("period") period: String, // daily | monthly
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsTrendResponse>
+
+    @GET("api/v1/statistics/expense-to-balance-ratio")
+    suspend fun getStatisticsExpenseToBalanceRatio(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsExpenseToBalanceRatioResponse>
+
+    @GET("api/v1/statistics/income-vs-expense")
+    suspend fun getStatisticsIncomeVsExpense(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.data.models.StatisticsIncomeVsExpenseResponse>
 
 }
