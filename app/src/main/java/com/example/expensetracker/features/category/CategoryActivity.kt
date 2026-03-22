@@ -44,7 +44,8 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
     private lateinit var prefs: AppPreferences
     private var isExpenseTab = true
 
-
+    // BASE_URL đồng bộ với ApiClient/Adapter
+    private val BASE_URL = "https://baculine-kelsey-nonethically.ngrok-free.dev"
 
     // Biến tạm cho Dialog
     private var selectedImageUri: Uri? = null

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wallet icon - slide 1 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8,16 L8,34 C8,36.209 9.791,38 12,38 L36,38 C38.209,38 40,36.209 40,34 L40,22 C40,19.791 38.209,18 36,18 L10,18 C8.895,18 8,17.105 8,16 C8,14.895 8.895,14 10,14 L34,14" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,28 C34,29.657 32.657,31 31,31 C29.343,31 28,29.657 28,28 C28,26.343 29.343,25 31,25 C32.657,25 34,26.343 34,28 Z" />
+</vector>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Piggy bank icon - slide 4 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Piggy body -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M38,22 C38,22 40,20 40,18 C40,16 38,16 38,16 C37,13 34,11 30,11 C26,9 18,10 15,15 C11,15 8,18 8,22 C8,26 10,29 14,30 L14,36 C14,37.1 14.9,38 16,38 L20,38 C21.1,38 22,37.1 22,36 L22,34 L28,34 L28,36 C28,37.1 28.9,38 30,38 L34,38 C35.1,38 36,37.1 36,36 L36,30 C37.3,29 38,27 38,25 L38,22 Z" />
+    <!-- Eye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,19 C27,20.104 26.104,21 25,21 C23.896,21 23,20.104 23,19 C23,17.896 23.896,17 25,17 C26.104,17 27,17.896 27,19 Z" />
+    <!-- Coin slot -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M26,11 L26,8" />
+</vector>
