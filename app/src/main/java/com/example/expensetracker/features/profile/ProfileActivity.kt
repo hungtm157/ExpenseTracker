@@ -3,6 +3,7 @@ package com.example.expensetracker.features.profile
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -157,6 +158,8 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         val fullIconUrl = if (!profile.avatar.isNullOrEmpty()) {
             if (profile.avatar.startsWith("https")) profile.avatar else ApiClient.BASE_URL + profile.avatar
         } else null
+
+        Log.d("AVATAR: ","$fullIconUrl")
 
         Glide.with(this)
             .load(fullIconUrl)
