@@ -288,14 +288,14 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
             tabExpense.setTextColor(getColor(R.color.green_mid))
             tabExpense.typeface = android.graphics.Typeface.DEFAULT_BOLD
             tabIncome.setBackgroundResource(android.R.color.transparent)
-            tabIncome.setTextColor(0xCCFFFFFF.toInt())
+            tabIncome.setTextColor(getColor(R.color.green_mid))
             tabIncome.typeface = android.graphics.Typeface.DEFAULT
         } else {
             tabIncome.setBackgroundResource(R.drawable.bg_tab_selected)
             tabIncome.setTextColor(getColor(R.color.green_mid))
             tabIncome.typeface = android.graphics.Typeface.DEFAULT_BOLD
             tabExpense.setBackgroundResource(android.R.color.transparent)
-            tabExpense.setTextColor(0xCCFFFFFF.toInt())
+            tabExpense.setTextColor(getColor(R.color.green_mid))
             tabExpense.typeface = android.graphics.Typeface.DEFAULT
         }
     }

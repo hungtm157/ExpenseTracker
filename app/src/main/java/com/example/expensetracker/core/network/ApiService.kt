@@ -195,4 +195,9 @@ interface ApiService {
         @Body request: com.example.expensetracker.features.plan.BudgetUpdateRequest
     ): Response<com.example.expensetracker.features.plan.BudgetModel>
 
+    // ─── Statistic ──────────────────────────────────────────────────────────────
+
+    @GET("api/v1/statistics/general")
+    suspend fun getStatisticsGeneral(): Response<com.example.expensetracker.data.models.GeneralStatisticsResponse>
+
 }

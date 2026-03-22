@@ -1,5 +1,6 @@
 package com.example.expensetracker.core.network
 
+import android.util.Log
 import com.example.expensetracker.App
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -18,6 +19,7 @@ object ApiClient {
     private val authInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
         val token = App.instance.preferences.authToken
+        Log.d("TOKEN","Access Token: $token")
 
         val newRequest = if (token.isNotEmpty()) {
             originalRequest.newBuilder()
