@@ -19,7 +19,7 @@ class CategoryGridAdapter(
 ) : RecyclerView.Adapter<CategoryGridAdapter.ViewHolder>() {
 
     private var selectedPosition = -1
-    private val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+    private val BASE_URL = "https://baculine-kelsey-nonethically.ngrok-free.dev"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_category_grid, parent, false)

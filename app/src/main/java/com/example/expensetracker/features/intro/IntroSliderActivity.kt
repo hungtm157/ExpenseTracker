@@ -2,15 +2,20 @@ package com.example.expensetracker.features.intro
 
 import android.content.Intent
 import android.graphics.Color
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.example.expensetracker.App
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.features.auth.login.LoginActivity
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.messaging.FirebaseMessaging
 
 /**
  * IntroSliderActivity — màn hình Intro Slider 4 trang.
@@ -43,6 +48,26 @@ class IntroSliderActivity : BaseActivity(R.layout.activity_intro_slider) {
     )
 
     override fun initViews() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("zzzzzz", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+            Log.d("FCMToken", "FCMToken = $token")
+        })
+
+        FirebaseInstallations.getInstance().id
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val fid = task.result
+                    Log.d("FID", "FID = $fid")
+                } else {
+                    Log.e("FID", "Failed to get FID", task.exception)
+                }
+            }
         // Nếu đã xem intro rồi → bỏ qua
         if (App.instance.preferences.hasSeenIntro) {
             goToLogin()

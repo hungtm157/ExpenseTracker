@@ -22,7 +22,7 @@ class CategoryAdapter(
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     companion object {
-        private const val BASE_URL = "https://maddie-conditioned-increasingly.ngrok-free.dev"
+        private const val BASE_URL = "https://baculine-kelsey-nonethically.ngrok-free.dev"
     }
 
     inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
