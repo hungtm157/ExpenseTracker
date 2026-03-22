@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
+import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.data.local.AppPreferences
 import com.example.expensetracker.data.models.CategoryItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -195,7 +196,7 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
                 dialogImgSelected?.visibility = View.VISIBLE
                 dialogImgRemove?.visibility = View.VISIBLE
                 dialogLayoutPlaceholder?.visibility = View.GONE
-                Glide.with(this).load("$BASE_URL$iconUrl").into(dialogImgSelected!!)
+                Glide.with(this).load("${ApiClient.BASE_URL}$iconUrl").into(dialogImgSelected!!)
             }
         }
 
@@ -288,14 +289,14 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
             tabExpense.setTextColor(getColor(R.color.green_mid))
             tabExpense.typeface = android.graphics.Typeface.DEFAULT_BOLD
             tabIncome.setBackgroundResource(android.R.color.transparent)
-            tabIncome.setTextColor(0xCCFFFFFF.toInt())
+            tabIncome.setTextColor(getColor(R.color.green_mid))
             tabIncome.typeface = android.graphics.Typeface.DEFAULT
         } else {
             tabIncome.setBackgroundResource(R.drawable.bg_tab_selected)
             tabIncome.setTextColor(getColor(R.color.green_mid))
             tabIncome.typeface = android.graphics.Typeface.DEFAULT_BOLD
             tabExpense.setBackgroundResource(android.R.color.transparent)
-            tabExpense.setTextColor(0xCCFFFFFF.toInt())
+            tabExpense.setTextColor(getColor(R.color.green_mid))
             tabExpense.typeface = android.graphics.Typeface.DEFAULT
         }
     }
