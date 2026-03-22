@@ -9,6 +9,7 @@ import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpRequest
 import com.example.expensetracker.data.models.ForgotPasswordVerifyOtpResponse
 import com.example.expensetracker.data.models.LoginRequest
 import com.example.expensetracker.data.models.LoginResponse
+import com.example.expensetracker.data.models.ScanInvoiceApiResponse
 import com.example.expensetracker.data.models.RegisterRequest
 import com.example.expensetracker.data.models.RegisterResponse
 import com.example.expensetracker.data.models.ResetPasswordRequest
@@ -135,12 +136,10 @@ interface ApiService {
     ): Response<TransactionModel>
 
     @Multipart
-    @POST("api/v1/transactions/ocr-scan")
-    suspend fun ocrScan(
-        @Part("wallet_id") walletId: RequestBody,
-        @Part("category_id") categoryId: RequestBody,
-        @Part receiptImage: MultipartBody.Part
-    ): Response<TransactionModel>
+    @POST("api/v1/transactions/scan-invoice")
+    suspend fun scanInvoice(
+        @Part image: MultipartBody.Part
+    ): Response<ScanInvoiceApiResponse>
 
     @Multipart
     @PATCH("api/v1/transactions/{id}")

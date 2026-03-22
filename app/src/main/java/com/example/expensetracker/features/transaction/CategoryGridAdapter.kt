@@ -72,6 +72,11 @@ class CategoryGridAdapter(
         notifyDataSetChanged()
     }
 
+    /** Tìm vị trí của category theo ID, trả -1 nếu không tìm thấy */
+    fun findPositionByCategoryId(categoryId: Int): Int {
+        return categories.indexOfFirst { it.id == categoryId }
+    }
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivIcon: ImageView = view.findViewById(R.id.ivCategoryIcon)
         val tvName: TextView = view.findViewById(R.id.tvCategoryName)

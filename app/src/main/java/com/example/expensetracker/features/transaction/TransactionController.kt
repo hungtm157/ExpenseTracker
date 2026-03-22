@@ -2,6 +2,7 @@ package com.example.expensetracker.features.transaction
 
 import android.util.Log
 import com.example.expensetracker.data.repository.TransactionRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ class TransactionController(
         date: String,
         note: String? = null,
         currency: String? = null,
+        source: TransactionSource = TransactionSource.MANUAL,
         imageFile: File? = null
     ) {
         Log.d(TAG, "createTransaction: Đang tạo giao dịch (JSON)...")
@@ -43,7 +45,7 @@ class TransactionController(
             note = note,
             currency = currency ?: "VND",
             transactionDate = date,
-            source = TransactionSource.MANUAL
+            source = source
         )
 
         scope.launch {
@@ -122,35 +124,36 @@ class TransactionController(
         }
     }
 
-    /** Quét OCR */
-    fun scanOcr(walletId: Int, categoryId: Int, imageFile: File) {
-        Log.d(TAG, "scanOcr: Bắt đầu quét OCR...")
+    /** Quét hóa đơn — API mới /scan-invoice, chỉ cần ảnh */
+    fun scanInvoice(imageFile: File) {
+        Log.d(TAG, "scanInvoice: Bắt đầu quét hóa đơn...")
         listener.onLoading(true)
 
-        val walletIdBody = walletId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-        val categoryIdBody = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val imagePart = MultipartBody.Part.createFormData(
-            "receipt_image", imageFile.name, imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+            "image", imageFile.name, imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
         )
 
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    repository.ocrScan(walletIdBody, categoryIdBody, imagePart)
+                    repository.scanInvoice(imagePart)
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        Log.d(TAG, "scanOcr: Thành công, nhận diện giao dịch")
-                        listener.onOcrResult(it)
+                    val data = response.body()?.data
+                    if (data != null) {
+                        Log.d(TAG, "scanInvoice: Thành công — amount=${data.amount}, category=${data.categoryId}")
+                        listener.onScanInvoiceResult(data)
+                    } else {
+                        listener.onError("Không nhận được dữ liệu từ server")
                     }
                 } else {
                     val errorMsg = parseErrorMessage(response.errorBody())
-                    Log.e(TAG, "scanOcr: $errorMsg")
+                    Log.e(TAG, "scanInvoice: $errorMsg")
                     listener.onError(errorMsg)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "scanOcr: Lỗi kết nối", e)
+                Log.e(TAG, "scanInvoice: Lỗi kết nối", e)
                 listener.onLoading(false)
                 listener.onError(e.message ?: "Lỗi kết nối")
             }
@@ -163,7 +166,7 @@ class TransactionController(
     private fun parseErrorMessage(errorBody: okhttp3.ResponseBody?): String {
         return try {
             val errorJson = errorBody?.string()
-            val errorResponse = com.google.gson.Gson().fromJson(errorJson, com.example.expensetracker.data.models.ErrorResponse::class.java)
+            val errorResponse = Gson().fromJson(errorJson, com.example.expensetracker.data.models.ErrorResponse::class.java)
             errorResponse.message
         } catch (e: Exception) {
             "Đã có lỗi xảy ra, vui lòng thử lại"

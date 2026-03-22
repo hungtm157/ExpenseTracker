@@ -48,6 +48,7 @@ class LoginController(private val listener: LoginListener) {
                             prefs.isLoggedIn = true
                             prefs.userName = user.fullName
                             prefs.userId = user.id.toLong()
+                            prefs.userType = user.type
                             listener.onLoginSuccess()
                         } else {
                             listener.onLoginFailure("Phản hồi từ máy chủ không hợp lệ")

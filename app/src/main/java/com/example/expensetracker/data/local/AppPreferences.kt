@@ -21,6 +21,7 @@ class AppPreferences(context: Context) {
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_HAS_SEEN_INTRO = "has_seen_intro"
         private const val KEY_FCM_TOKEN = "fcm_token"
+        private const val KEY_USER_TYPE = "user_type"
     }
 
     var userId: Long
@@ -46,6 +47,13 @@ class AppPreferences(context: Context) {
     var fcmToken: String
         get() = prefs.getString(KEY_FCM_TOKEN, "") ?: ""
         set(value) = prefs.edit().putString(KEY_FCM_TOKEN, value).apply()
+
+    var userType: String
+        get() = prefs.getString(KEY_USER_TYPE, "FREE") ?: "FREE"
+        set(value) = prefs.edit().putString(KEY_USER_TYPE, value).apply()
+
+    val isPremium: Boolean
+        get() = userType == "PREMIUM"
 
     /** Xóa toàn bộ dữ liệu khi đăng xuất */
     fun clear() = prefs.edit().clear().apply()

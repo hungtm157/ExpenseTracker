@@ -45,6 +45,7 @@ class OtpController(private val listener: OtpListener) {
                             prefs.isLoggedIn = true
                             prefs.userName = user.fullName
                             prefs.userId = user.id.toLong()
+                            prefs.userType = user.type
                             listener.onVerifySuccess()
                         } else {
                             listener.onVerifyFailure("Phản hồi từ máy chủ không hợp lệ")

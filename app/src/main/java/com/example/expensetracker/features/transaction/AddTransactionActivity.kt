@@ -1,9 +1,16 @@
 package com.example.expensetracker.features.transaction
 
+import android.Manifest
 import android.app.DatePickerDialog
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
@@ -12,6 +19,7 @@ import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.local.AppPreferences
 import com.example.expensetracker.data.models.CategoryItem
+import com.example.expensetracker.data.models.ScanInvoiceData
 import com.example.expensetracker.data.repository.TransactionRepository
 import com.example.expensetracker.data.repository.WalletRepository
 import com.example.expensetracker.features.category.CategoryController
@@ -22,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -69,6 +78,41 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private var selectedWallet: WalletModel? = null
 
     private var editingTransaction: TransactionModel? = null
+    private var isFromOcr = false
+
+    // Camera OCR
+    private var cameraImageUri: Uri? = null
+    private var cameraImageFile: File? = null
+
+    /** Launcher chụp ảnh camera → gửi scan invoice */
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && cameraImageFile != null) {
+            controller.scanInvoice(cameraImageFile!!)
+        } else {
+            Toast.makeText(this, "Không chụp được ảnh", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Launcher xin quyền Camera */
+    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            openCamera()
+        } else {
+            Toast.makeText(this, "Cần quyền Camera để quét hóa đơn", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Launcher chọn ảnh từ thư viện → gửi scan invoice */
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            val file = uriToTempFile(it)
+            if (file != null) {
+                controller.scanInvoice(file)
+            } else {
+                Toast.makeText(this, "Không thể xử lý ảnh từ thư viện", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun initViews() {
         btnClose = findViewById(R.id.btnClose)
@@ -216,13 +260,103 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     amount = amount,
                     date = apiDateFormat.format(calendar.time),
                     note = note,
-                    currency = selectedWallet?.currency
+                    currency = selectedWallet?.currency,
+                    source = if (isFromOcr) TransactionSource.OCR_SCAN else TransactionSource.MANUAL
                 )
             }
         }
 
         btnOcr.setOnClickListener {
-            Toast.makeText(this, "Tính năng OCR đang phát triển", Toast.LENGTH_SHORT).show()
+            handleOcrClick()
+        }
+    }
+
+    // ─── OCR Flow ────────────────────────────────────────────────────────────
+
+    private fun handleOcrClick() {
+        // 1. Check Premium
+        if (!prefs.isPremium) {
+            showPremiumRequiredDialog()
+            return
+        }
+        
+        // 2. Hiện lựa chọn nguồn ảnh
+        val options = arrayOf("Chụp ảnh mới", "Chọn từ thư viện")
+        AlertDialog.Builder(this)
+            .setTitle("Quét hóa đơn")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> { // Camera
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            openCamera()
+                        } else {
+                            showCameraPermissionDialog()
+                        }
+                    }
+                    1 -> { // Gallery
+                        galleryLauncher.launch("image/*")
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun showPremiumRequiredDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Tính năng Premium")
+            .setMessage("Quét hóa đơn OCR chỉ dành cho tài khoản Premium.\nVui lòng nâng cấp để sử dụng tính năng này.")
+            .setPositiveButton("Nâng cấp") { _, _ ->
+                Toast.makeText(this, "Chuyển sang màn hình nâng cấp", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Để sau", null)
+            .show()
+    }
+
+    private fun showCameraPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Quyền Camera")
+            .setMessage("Ứng dụng cần quyền truy cập Camera để chụp ảnh hóa đơn.")
+            .setPositiveButton("Cho phép") { _, _ ->
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+
+    private fun openCamera() {
+        try {
+            val imageDir = File(externalCacheDir, "camera_images")
+            if (!imageDir.exists()) imageDir.mkdirs()
+            cameraImageFile = File(imageDir, "invoice_${System.currentTimeMillis()}.jpg")
+            cameraImageUri = FileProvider.getUriForFile(
+                this, "${packageName}.fileprovider", cameraImageFile!!
+            )
+            cameraImageUri?.let { cameraLauncher.launch(it) }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Không thể mở camera: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Copy Uri từ Gallery sang File tạm để gửi lên API */
+    private fun uriToTempFile(uri: Uri): File? {
+        return try {
+            val mimeType = contentResolver.getType(uri)
+            val extension = android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
+            
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val tempDir = File(externalCacheDir, "temp_images")
+            if (!tempDir.exists()) tempDir.mkdirs()
+            val tempFile = File(tempDir, "temp_ocr_${System.currentTimeMillis()}.$extension")
+            val outputStream = java.io.FileOutputStream(tempFile)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -354,9 +488,35 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         finish()
     }
 
-    override fun onOcrResult(transaction: TransactionModel) {
-        etAmount.setText(transaction.amount.toString())
-        etNote.setText(transaction.note)
+    override fun onScanInvoiceResult(data: ScanInvoiceData) {
+        isFromOcr = true
+        
+        // Điền số tiền
+        etAmount.setText(data.amount.toInt().toString())
+
+        // Điền ghi chú
+        etNote.setText(data.note ?: "")
+
+        // Parse & điền ngày (server trả dd-MM-yyyy)
+        try {
+            val ocrDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+            val parsedDate = ocrDateFormat.parse(data.transactionDate)
+            if (parsedDate != null) {
+                calendar.time = parsedDate
+                updateDateText()
+            }
+        } catch (e: Exception) {
+            // Nếu parse lỗi, giữ ngày hiện tại
+        }
+
+        // Tìm & chọn category theo ID
+        val idx = categoryAdapter.findPositionByCategoryId(data.categoryId)
+        if (idx != -1) {
+            categoryAdapter.setSelectedPosition(idx)
+            rvCategories.scrollToPosition(idx)
+        }
+
+        Toast.makeText(this, "Đã quét hóa đơn thành công!", Toast.LENGTH_SHORT).show()
     }
 
     override fun onLoading(isLoading: Boolean) {

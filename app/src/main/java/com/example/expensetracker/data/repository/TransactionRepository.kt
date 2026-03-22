@@ -37,13 +37,11 @@ class TransactionRepository(private val apiService: ApiService) {
         return apiService.createTransaction(request)
     }
 
-    /** Quét OCR hóa đơn */
-    suspend fun ocrScan(
-        walletId: RequestBody,
-        categoryId: RequestBody,
-        receiptImage: MultipartBody.Part
-    ): Response<TransactionModel> {
-        return apiService.ocrScan(walletId, categoryId, receiptImage)
+    /** Quét hóa đơn — API mới chỉ cần ảnh */
+    suspend fun scanInvoice(
+        imagePart: MultipartBody.Part
+    ): Response<com.example.expensetracker.data.models.ScanInvoiceApiResponse> {
+        return apiService.scanInvoice(imagePart)
     }
 
     /** Cập nhật giao dịch */
