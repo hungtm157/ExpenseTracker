@@ -14,6 +14,7 @@ import com.example.expensetracker.core.base.BaseFragment
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.repository.BudgetRepository
+import com.example.expensetracker.utils.AdManager
 import java.text.DecimalFormat
 import java.util.Calendar
 
@@ -84,11 +85,15 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
 
     override fun initListeners() {
         btnAddBudget.setOnClickListener {
-            startActivity(Intent(requireContext(), AddBudgetActivity::class.java))
+            AdManager.showInterstitialAd(requireActivity()) {
+                startActivity(Intent(requireContext(), AddBudgetActivity::class.java))
+            }
         }
 
         btnCreateFirst.setOnClickListener {
-            startActivity(Intent(requireContext(), AddBudgetActivity::class.java))
+            AdManager.showInterstitialAd(requireActivity()) {
+                startActivity(Intent(requireContext(), AddBudgetActivity::class.java))
+            }
         }
 
         tabExpense.setOnClickListener {

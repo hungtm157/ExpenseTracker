@@ -1,5 +1,6 @@
 package com.example.expensetracker.features.home
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.expensetracker.R
@@ -9,8 +10,8 @@ import com.example.expensetracker.features.plan.PlanFragment
 import com.example.expensetracker.features.statistics.StatisticsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.example.expensetracker.features.transaction.AddTransactionActivity
-import android.content.Intent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.expensetracker.utils.AdManager
 
 /**
  * HomeActivity — Container chính của ứng dụng.
@@ -30,6 +31,9 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
             switchFragment(HomeFragment())
             bottomNavigation.selectedItemId = R.id.nav_home
+            
+            // Show ad on app entry
+            AdManager.showInterstitialAd(this) {}
         }
     }
 
@@ -57,8 +61,10 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         }
 
         fab.setOnClickListener {
-            val intent = Intent(this, AddTransactionActivity::class.java)
-            startActivity(intent)
+            AdManager.showInterstitialAd(this) {
+                val intent = Intent(this, AddTransactionActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 

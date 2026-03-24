@@ -3,6 +3,7 @@ package com.example.expensetracker
 import android.app.Application
 import com.example.expensetracker.data.local.AppDatabase
 import com.example.expensetracker.data.local.AppPreferences
+import com.example.expensetracker.utils.AdManager
 
 /**
  * App — Lớp Application khởi tạo toàn bộ ứng dụng.
@@ -19,6 +20,10 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        
+        // Khởi tạo AdMob
+        AdManager.init(this)
+        
         // TODO: Khởi tạo các thư viện khác (Firebase, Timber, v.v.) ở đây
     }
 

@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
+import com.example.expensetracker.utils.AdManager
 
 /**
  * MoreFragment — Màn hình Cài đặt (tab Khác trong Bottom Navigation).
@@ -128,15 +129,19 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
             )
         }
         menuCategories.setOnClickListener {
-            startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            AdManager.showInterstitialAd(requireActivity()) {
+                startActivity(Intent(requireContext(), CategoryActivity::class.java))
+            }
         }
         menuWallet.setOnClickListener {
-            startActivity(
-                Intent(
-                    requireContext(),
-                    com.example.expensetracker.features.wallet.WalletActivity::class.java
+            AdManager.showInterstitialAd(requireActivity()) {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        com.example.expensetracker.features.wallet.WalletActivity::class.java
+                    )
                 )
-            )
+            }
         }
         menuNotifications.setOnClickListener {
             Toast.makeText(requireContext(), "Thông báo", Toast.LENGTH_SHORT).show()

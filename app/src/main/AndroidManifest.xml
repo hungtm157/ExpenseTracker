@@ -81,6 +81,11 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/green_start" />
 
+        <!-- Thêm ID ứng dụng AdMob (Đây là ID Test của Google) -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
         <!-- FileProvider cho ảnh camera -->
         <provider
             android:name="androidx.core.content.FileProvider"
