@@ -42,6 +42,9 @@ interface ApiService {
     @POST("api/v1/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
+    @POST("api/v1/auth/google")
+    suspend fun loginWithGoogle(@Body request: com.example.expensetracker.data.models.GoogleLoginRequest): Response<LoginResponse>
+
     @POST("api/v1/auth/register/send-otp")
     suspend fun sendOtp(@Body request: RegisterRequest): Response<RegisterResponse>
 

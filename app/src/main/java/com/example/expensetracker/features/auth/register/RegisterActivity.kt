@@ -16,11 +16,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.expensetracker.R
+import com.example.expensetracker.core.auth.GoogleSignInHelper
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.features.auth.login.LoginActivity
 import com.example.expensetracker.features.auth.otp.OtpActivity
+import com.example.expensetracker.features.home.HomeActivity
 
-class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListener {
+class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListener, GoogleSignInHelper.GoogleSignInListener {
 
     private lateinit var ivBack: ImageView
     private lateinit var etName: EditText
@@ -36,6 +38,7 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
     private lateinit var tvGoToLogin: TextView
 
     private val controller = RegisterController(this)
+    private lateinit var googleSignInHelper: GoogleSignInHelper
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
 
@@ -54,6 +57,9 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
         tvGoToLogin = findViewById(R.id.tvGoToLogin)
 
         setupTermsText()
+
+        // Init Google Sign-In
+        googleSignInHelper = GoogleSignInHelper(this, this)
     }
 
     private fun setupTermsText() {
@@ -122,7 +128,7 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
         }
 
         btnRegisterGoogle.setOnClickListener {
-            Toast.makeText(this, "Đăng ký với Google đang phát triển", Toast.LENGTH_SHORT).show()
+            googleSignInHelper.launchSignIn()
         }
 
         tvGoToLogin.setOnClickListener {
@@ -130,6 +136,15 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
             finish()
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GoogleSignInHelper.RC_GOOGLE_SIGN_IN) {
+            googleSignInHelper.handleResult(data)
+        }
+    }
+
+    // ─── RegisterListener ────────────────────────────────────────────────────
 
     override fun onRegisterSuccess() {
         val intent = Intent(this, OtpActivity::class.java).apply {
@@ -146,5 +161,24 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
 
     override fun onRegisterLoading(isLoading: Boolean) {
         btnRegister.isEnabled = !isLoading
+    }
+
+    // ─── GoogleSignInListener ────────────────────────────────────────────────
+
+    override fun onGoogleSignInSuccess() {
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    override fun onGoogleSignInFailure(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onGoogleSignInLoading(isLoading: Boolean) {
+        btnRegister.isEnabled = !isLoading
+        btnRegisterGoogle.isEnabled = !isLoading
     }
 }

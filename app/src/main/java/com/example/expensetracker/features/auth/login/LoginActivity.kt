@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.expensetracker.App
 import com.example.expensetracker.R
+import com.example.expensetracker.core.auth.GoogleSignInHelper
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.features.auth.forgotpassword.ForgotPasswordActivity
 import com.example.expensetracker.features.auth.register.RegisterActivity
@@ -21,7 +22,7 @@ import com.example.expensetracker.features.home.HomeActivity
  * LoginActivity — View cho màn hình Đăng nhập.
  * Chỉ xử lý UI; logic nghiệp vụ ủy quyền cho LoginController.
  */
-class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
+class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener, GoogleSignInHelper.GoogleSignInListener {
 
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
@@ -33,6 +34,7 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
     private lateinit var progressBar: ProgressBar
 
     private val controller = LoginController(this)
+    private lateinit var googleSignInHelper: GoogleSignInHelper
     private var isPasswordVisible = false
     private val TAG = "LoginActivity"
 
@@ -56,6 +58,9 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
         tvForgotPassword = findViewById(R.id.tvForgotPassword)
         tvGoToRegister = findViewById(R.id.tvGoToRegister)
         progressBar = findViewById(R.id.progressBar)
+
+        // Init Google Sign-In
+        googleSignInHelper = GoogleSignInHelper(this, this)
     }
 
     override fun initListeners() {
@@ -83,7 +88,14 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
         }
 
         btnLoginGoogle.setOnClickListener {
-            Toast.makeText(this, "Đăng nhập với Google đang phát triển", Toast.LENGTH_SHORT).show()
+            googleSignInHelper.launchSignIn()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GoogleSignInHelper.RC_GOOGLE_SIGN_IN) {
+            googleSignInHelper.handleResult(data)
         }
     }
 
@@ -102,5 +114,23 @@ class LoginActivity : BaseActivity(R.layout.activity_login), LoginListener {
         if (isFinishing) return
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnLogin.isEnabled = !isLoading
+    }
+
+    // ─── GoogleSignInListener ────────────────────────────────────────────────
+
+    override fun onGoogleSignInSuccess() {
+        startActivity(Intent(this, HomeActivity::class.java))
+        finish()
+    }
+
+    override fun onGoogleSignInFailure(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onGoogleSignInLoading(isLoading: Boolean) {
+        if (isFinishing) return
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        btnLogin.isEnabled = !isLoading
+        btnLoginGoogle.isEnabled = !isLoading
     }
 }
