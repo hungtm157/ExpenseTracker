@@ -42,7 +42,6 @@ class CategoryController(private val listener: CategoryListener) {
                 }
             } catch (e: Exception) {
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Không thể tải danh mục")
             }
         }
     }
@@ -67,7 +66,6 @@ class CategoryController(private val listener: CategoryListener) {
                 }
             } catch (e: Exception) {
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi thêm danh mục")
             }
         }
     }
@@ -100,7 +98,7 @@ class CategoryController(private val listener: CategoryListener) {
                 }
             } catch (e: Exception) {
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi cập nhật danh mục")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -125,7 +123,7 @@ class CategoryController(private val listener: CategoryListener) {
                 }
             } catch (e: Exception) {
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi khi xóa danh mục")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }

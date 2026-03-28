@@ -39,7 +39,6 @@ class BudgetController(
             } catch (e: Exception) {
                 Log.e(TAG, "loadBudgets: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -67,7 +66,7 @@ class BudgetController(
             } catch (e: Exception) {
                 Log.e(TAG, "createBudget: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -95,7 +94,7 @@ class BudgetController(
             } catch (e: Exception) {
                 Log.e(TAG, "completeBudget: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -123,7 +122,7 @@ class BudgetController(
             } catch (e: Exception) {
                 Log.e(TAG, "updateBudget: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }

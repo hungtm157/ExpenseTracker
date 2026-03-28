@@ -67,7 +67,7 @@ class TransactionController(
             } catch (e: Exception) {
                 Log.e(TAG, "createTransaction: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -119,7 +119,7 @@ class TransactionController(
             } catch (e: Exception) {
                 Log.e(TAG, "updateTransaction: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -155,7 +155,7 @@ class TransactionController(
             } catch (e: Exception) {
                 Log.e(TAG, "scanInvoice: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }

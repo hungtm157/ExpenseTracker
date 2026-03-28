@@ -62,7 +62,7 @@ class TransactionHistoryController(
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     view.onLoading(false)
-                    view.onError("Lỗi kết nối: ${e.message}")
+                    view.onError("Không thể kết nối đến máy chủ")
                 }
             }
         }
@@ -92,7 +92,7 @@ class TransactionHistoryController(
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     view.onLoading(false)
-                    view.onError("Lỗi kết nối: ${e.message}")
+                    view.onError("Không thể kết nối đến máy chủ")
                 }
             }
         }
