@@ -60,6 +60,7 @@
 
         <!-- Budget -->
         <activity android:name=".features.plan.AddBudgetActivity" />
+        <activity android:name=".features.plan.BudgetDetailActivity" />
 
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />

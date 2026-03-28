@@ -102,7 +102,7 @@ class BudgetAdapter(
             progressBudget.progressBackgroundTintList = ColorStateList.valueOf(bgColor)
 
             // Spent info text with color
-            tvSpentInfo.text = "Đã chi: đ${decimalFormat.format(spent)} ($percentDisplay%)"
+            tvSpentInfo.text = "Đã chi: ${decimalFormat.format(spent)}đ ($percentDisplay%)"
             tvSpentInfo.setTextColor(textColor)
 
             // Category icon fallback
@@ -111,8 +111,7 @@ class BudgetAdapter(
 
             // Click listener
             itemView.setOnClickListener { 
-                // Tạm thời vô hiệu hóa do BE chưa có API cập nhật budget
-                // onItemClick(budget) 
+                onItemClick(budget) 
             }
         }
     }

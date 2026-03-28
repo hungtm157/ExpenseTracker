@@ -10,13 +10,18 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.expensetracker.App
 import com.example.expensetracker.R
+import com.example.expensetracker.core.network.ApiClient
+import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.features.auth.login.LoginActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * MyFirebaseMessagingService — xử lý FCM token và push notification.
- * - onNewToken: lưu token mới, gửi lên server nếu cần.
+ * - onNewToken: lưu token mới, gửi lên server nếu đã đăng nhập.
  * - onMessageReceived: hiển thị notification khi app đang foreground.
  */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -29,14 +34,27 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     /**
      * Gọi khi FCM cấp token mới (lần đầu cài app hoặc token bị refresh).
-     * Lưu token vào AppPreferences để backend có thể dùng gửi notification.
+     * Lưu token vào AppPreferences và gửi lên server nếu đã đăng nhập.
      */
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "New FCM token: $token")
-        // Lưu token vào SharedPreferences
-        App.instance.preferences.fcmToken = token
-        // TODO: Gửi token lên backend server khi có API endpoint
+
+        val prefs = App.instance.preferences
+        prefs.fcmToken = token
+
+        // Nếu đã đăng nhập → gửi token mới lên server
+        if (prefs.authToken.isNotEmpty()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val apiService = ApiClient.create(ApiService::class.java)
+                    apiService.updateFcmToken(mapOf("fcmToken" to token))
+                    Log.d(TAG, "FCM token đã gửi lên server thành công (onNewToken)")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Lỗi gửi FCM token lên server", e)
+                }
+            }
+        }
     }
 
     /**

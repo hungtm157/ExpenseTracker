@@ -5,6 +5,7 @@ package com.example.expensetracker.features.plan
  */
 interface BudgetListener {
     fun onBudgetsLoaded(budgets: List<BudgetModel>)
+    fun onBudgetDetailLoaded(budget: BudgetModel)
     fun onBudgetCreated(budget: BudgetModel)
     fun onBudgetUpdated(budget: BudgetModel)
     fun onBudgetCompleted(budget: BudgetModel)

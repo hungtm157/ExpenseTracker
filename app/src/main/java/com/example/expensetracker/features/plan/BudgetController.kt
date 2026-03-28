@@ -17,14 +17,14 @@ class BudgetController(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val TAG = "BudgetController"
 
-    /** Tải danh sách kế hoạch ngân sách */
-    fun loadBudgets() {
+    /** Tải danh sách kế hoạch ngân sách (có hỗ trợ lọc theo ngày) */
+    fun loadBudgets(fromDate: String? = null, toDate: String? = null) {
         Log.d(TAG, "loadBudgets: Khởi chạy tải danh sách kế hoạch ngân sách")
         listener.onLoading(true)
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    repository.getBudgets()
+                    repository.getBudgets(fromDate, toDate)
                 }
                 listener.onLoading(false)
                 if (response.isSuccessful) {
@@ -39,6 +39,38 @@ class BudgetController(
             } catch (e: Exception) {
                 Log.e(TAG, "loadBudgets: Lỗi kết nối", e)
                 listener.onLoading(false)
+                listener.onError("Không thể kết nối đến máy chủ")
+            }
+        }
+    }
+
+    /** Tải chi tiết kế hoạch ngân sách */
+    fun loadBudgetDetail(id: Int) {
+        Log.d(TAG, "loadBudgetDetail: Tải chi tiết kế hoạch ngân sách ID $id")
+        listener.onLoading(true)
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    repository.getBudgetDetail(id)
+                }
+                listener.onLoading(false)
+                if (response.isSuccessful) {
+                    val budget = response.body()?.data
+                    if (budget != null) {
+                        Log.d(TAG, "loadBudgetDetail: Thành công")
+                        listener.onBudgetDetailLoaded(budget)
+                    } else {
+                        listener.onError("Không tìm thấy kế hoạch ngân sách")
+                    }
+                } else {
+                    val errorMsg = "Lỗi HTTP: ${response.code()} - ${response.message()}"
+                    Log.e(TAG, "loadBudgetDetail: $errorMsg")
+                    listener.onError(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "loadBudgetDetail: Lỗi kết nối", e)
+                listener.onLoading(false)
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }

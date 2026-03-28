@@ -9,9 +9,14 @@ import retrofit2.Response
  */
 class BudgetRepository(private val apiService: ApiService) {
 
-    /** Lấy danh sách kế hoạch ngân sách */
-    suspend fun getBudgets(): Response<BudgetListResponse> {
-        return apiService.getBudgets()
+    /** Lấy danh sách kế hoạch ngân sách (có hỗ trợ lọc theo ngày) */
+    suspend fun getBudgets(fromDate: String? = null, toDate: String? = null): Response<BudgetListResponse> {
+        return apiService.getBudgets(fromDate, toDate)
+    }
+
+    /** Lấy chi tiết kế hoạch ngân sách */
+    suspend fun getBudgetDetail(id: Int): Response<BudgetDetailResponse> {
+        return apiService.getBudgetDetail(id)
     }
 
     /** Tạo kế hoạch ngân sách mới */
