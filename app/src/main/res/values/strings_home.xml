@@ -53,7 +53,7 @@
     <string name="more_transaction_count">Giao dịch:</string>
     <string name="more_menu_categories">Quản lý danh mục</string>
     <string name="more_menu_notifications">Thông báo</string>
-    <string name="more_menu_security">Bảo mật</string>
+    <string name="more_menu_security">Chính sách Bảo mật</string>
     <string name="more_menu_about">Về ứng dụng</string>
 
     <!-- CategoryActivity -->
