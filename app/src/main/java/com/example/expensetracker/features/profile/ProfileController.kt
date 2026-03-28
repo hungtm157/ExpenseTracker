@@ -111,7 +111,7 @@ class ProfileController(
             } catch (e: Exception) {
                 Log.e(TAG, "Lỗi updateAvatar: ", e)
                 listener.onLoading(false)
-                listener.onAvatarUpdateError(e.message ?: "Lỗi kết nối. Vui lòng thử lại sau.")
+                listener.onAvatarUpdateError("Không thể kết nối đến máy chủ")
             }
         }
     }

@@ -39,7 +39,7 @@ class WalletController(
             } catch (e: Exception) {
                 Log.e(TAG, "loadWallets: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Không thể kết nối đến máy chủ")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -68,7 +68,7 @@ class WalletController(
             } catch (e: Exception) {
                 Log.e(TAG, "createWallet: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -96,7 +96,7 @@ class WalletController(
             } catch (e: Exception) {
                 Log.e(TAG, "updateWallet: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
@@ -122,7 +122,7 @@ class WalletController(
             } catch (e: Exception) {
                 Log.e(TAG, "deleteWallet: Lỗi kết nối", e)
                 listener.onLoading(false)
-                listener.onError(e.message ?: "Lỗi kết nối")
+                listener.onError("Không thể kết nối đến máy chủ")
             }
         }
     }
