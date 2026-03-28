@@ -64,10 +64,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
             app:tabIndicatorHeight="0dp"
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="#B3FFFFFF"
+            app:tabMode="scrollable"
+            app:tabMinWidth="0dp"
+            app:tabPaddingStart="4dp"
+            app:tabPaddingEnd="4dp"
             app:layout_constraintTop_toBottomOf="@id/tvCurrentMonth">
 
             <com.google.android.material.tabs.TabItem

@@ -1,31 +1,32 @@
 package com.example.expensetracker.features.plan
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.example.expensetracker.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * BudgetFilterDialog — Bottom Sheet cho phép lọc danh sách ngân sách theo khoảng thời gian.
+ * BudgetFilterDialog — Bottom Sheet cho phép chọn Năm -> Tháng để lọc kế hoạch.
  */
 class BudgetFilterDialog : BottomSheetDialogFragment() {
 
     interface OnFilterApplied {
-        fun onFilterApplied(fromDate: String?, toDate: String?)
+        fun onFilterApplied(month: Int, year: Int)
+        fun onReset()
     }
 
     private var listener: OnFilterApplied? = null
-    private var fromDate: Calendar? = null
-    private var toDate: Calendar? = null
-
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    
+    // Lưu trạng thái đang chọn trong Dialog (mặc định là hiện tại)
+    private var selectedYear = Calendar.getInstance().get(Calendar.YEAR)
+    private var selectedMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 // 1-12
 
     fun setOnFilterAppliedListener(listener: OnFilterApplied) {
         this.listener = listener
@@ -38,55 +39,66 @@ class BudgetFilterDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvFromDate: TextView = view.findViewById(R.id.tvFromDate)
-        val tvToDate: TextView = view.findViewById(R.id.tvToDate)
+        val btnPrevYear: ImageView = view.findViewById(R.id.btnPrevYear)
+        val btnNextYear: ImageView = view.findViewById(R.id.btnNextYear)
+        val tvSelectedYear: TextView = view.findViewById(R.id.tvSelectedYear)
+        val gridMonths: GridLayout = view.findViewById(R.id.gridMonths)
         val btnReset: TextView = view.findViewById(R.id.btnReset)
         val btnApply: TextView = view.findViewById(R.id.btnApply)
 
-        tvFromDate.setOnClickListener {
-            showDatePicker { cal ->
-                fromDate = cal
-                tvFromDate.text = dateFormat.format(cal.time)
-                tvFromDate.setTextColor(resources.getColor(R.color.text_primary, null))
-            }
+        // Cập nhật text năm ban đầu
+        tvSelectedYear.text = selectedYear.toString()
+
+        // Xử lý nút thay đổi năm
+        btnPrevYear.setOnClickListener {
+            selectedYear--
+            tvSelectedYear.text = selectedYear.toString()
+        }
+        btnNextYear.setOnClickListener {
+            selectedYear++
+            tvSelectedYear.text = selectedYear.toString()
         }
 
-        tvToDate.setOnClickListener {
-            showDatePicker { cal ->
-                toDate = cal
-                tvToDate.text = dateFormat.format(cal.time)
-                tvToDate.setTextColor(resources.getColor(R.color.text_primary, null))
+        // Xử lý chọn tháng từ Grid
+        val monthViews = mutableListOf<TextView>()
+        for (i in 0 until gridMonths.childCount) {
+            val child = gridMonths.getChildAt(i)
+            if (child is TextView) {
+                monthViews.add(child)
+                val monthValue = child.tag.toString().toInt()
+                
+                // Highlight tháng đang được chọn
+                updateMonthHighlight(child, monthValue == selectedMonth)
+
+                child.setOnClickListener {
+                    selectedMonth = monthValue
+                    // Cập nhật lại UI highlight cho tất cả
+                    monthViews.forEach { mv ->
+                        val mvVal = mv.tag.toString().toInt()
+                        updateMonthHighlight(mv, mvVal == selectedMonth)
+                    }
+                }
             }
         }
 
         btnReset.setOnClickListener {
-            fromDate = null
-            toDate = null
-            listener?.onFilterApplied(null, null)
+            listener?.onReset()
             dismiss()
         }
 
         btnApply.setOnClickListener {
-            val from = fromDate?.let { apiDateFormat.format(it.time) }
-            val to = toDate?.let { apiDateFormat.format(it.time) }
-            listener?.onFilterApplied(from, to)
+            listener?.onFilterApplied(selectedMonth, selectedYear)
             dismiss()
         }
     }
 
-    private fun showDatePicker(onDateSelected: (Calendar) -> Unit) {
-        val cal = Calendar.getInstance()
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, day ->
-                val selected = Calendar.getInstance().apply {
-                    set(year, month, day)
-                }
-                onDateSelected(selected)
-            },
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
-            cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+    private fun updateMonthHighlight(view: TextView, isSelected: Boolean) {
+        if (isSelected) {
+            view.setBackgroundResource(R.drawable.bg_month_selected)
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        } else {
+            view.setBackgroundResource(R.drawable.bg_input_rounded)
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+        }
     }
 }

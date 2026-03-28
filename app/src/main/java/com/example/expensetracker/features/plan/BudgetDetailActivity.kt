@@ -191,11 +191,13 @@ class BudgetDetailActivity : BaseActivity(R.layout.activity_budget_detail), Budg
 
     override fun onBudgetUpdated(budget: BudgetModel) {
         Toast.makeText(this, "Đã cập nhật kế hoạch ngân sách", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK)
         controller.loadBudgetDetail(budgetId)
     }
 
     override fun onBudgetCompleted(budget: BudgetModel) {
         Toast.makeText(this, "Đã chốt kế hoạch ngân sách", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK)
         controller.loadBudgetDetail(budgetId)
     }
 
