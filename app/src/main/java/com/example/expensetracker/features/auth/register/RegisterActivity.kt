@@ -21,6 +21,8 @@ import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.features.auth.login.LoginActivity
 import com.example.expensetracker.features.auth.otp.OtpActivity
 import com.example.expensetracker.features.home.HomeActivity
+import com.example.expensetracker.features.more.PrivacyPolicyActivity
+import com.example.expensetracker.features.more.TermsOfServiceActivity
 
 class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListener, GoogleSignInHelper.GoogleSignInListener {
 
@@ -72,7 +74,7 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
         spannable.setSpan(ForegroundColorSpan(green), termsStart, termsEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannable.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
-                Toast.makeText(this@RegisterActivity, "Điều khoản dịch vụ đang cập nhật", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this@RegisterActivity, TermsOfServiceActivity::class.java))
             }
             override fun updateDrawState(ds: android.text.TextPaint) {
                 ds.color = green
@@ -85,7 +87,7 @@ class RegisterActivity : BaseActivity(R.layout.activity_register), RegisterListe
         spannable.setSpan(ForegroundColorSpan(green), privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannable.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
-                Toast.makeText(this@RegisterActivity, "Chính sách bảo mật đang cập nhật", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this@RegisterActivity, PrivacyPolicyActivity::class.java))
             }
             override fun updateDrawState(ds: android.text.TextPaint) {
                 ds.color = green

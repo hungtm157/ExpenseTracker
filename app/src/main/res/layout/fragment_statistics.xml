@@ -154,7 +154,7 @@
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_expense"
+                            android:src="@drawable/icon_chi"
                             app:tint="#FF5252"
                             tools:ignore="ContentDescription" />
 
@@ -204,7 +204,7 @@
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_income"
+                            android:src="@drawable/icon_thu"
                             app:tint="@color/green_mid"
                             tools:ignore="ContentDescription" />
 

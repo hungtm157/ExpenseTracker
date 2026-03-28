@@ -321,11 +321,13 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
 
     override fun onBudgetCreated(budget: BudgetModel) {
         Toast.makeText(this, "Đã tạo kế hoạch ngân sách thành công!", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK)
         finish()
     }
 
     override fun onBudgetUpdated(budget: BudgetModel) {
         Toast.makeText(this, "Đã cập nhật kế hoạch ngân sách thành công!", Toast.LENGTH_SHORT).show()
+        setResult(RESULT_OK)
         finish()
     }
 

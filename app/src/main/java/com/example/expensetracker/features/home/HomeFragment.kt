@@ -30,6 +30,7 @@ import java.util.Locale
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
+    private lateinit var tvWelcome: TextView
     private lateinit var tvStatusExpense: TextView
     private lateinit var tvExpenseAndBalance: TextView
     private lateinit var tvRemaining: TextView
@@ -91,6 +92,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             )
         }
 
+        tvWelcome = view.findViewById(R.id.tvWelcome)
         tvStatusExpense = view.findViewById(R.id.tvStatusExpense)
         tvExpenseAndBalance = view.findViewById(R.id.tvExpenseAndBalance)
         tvRemaining = view.findViewById(R.id.tvRemaining)
@@ -131,7 +133,17 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         tvCatAmount3 = view.findViewById(R.id.tvCatAmount3)
 
         setupTabs()
+        setupWelcomeMessage()
         loadStatistics()
+    }
+
+    private fun setupWelcomeMessage() {
+        val userName = com.example.expensetracker.App.instance.preferences.userName
+        if (userName.isNotEmpty()) {
+            tvWelcome.text = "Xin chào, $userName 👋"
+        } else {
+            tvWelcome.text = "Xin chào 👋"
+        }
     }
 
     private fun setupTabs() {

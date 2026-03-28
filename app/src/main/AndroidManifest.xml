@@ -82,6 +82,7 @@
         <!-- More / About & Privacy -->
         <activity android:name=".features.more.AboutAppActivity" />
         <activity android:name=".features.more.PrivacyPolicyActivity" />
+        <activity android:name=".features.more.TermsOfServiceActivity" />
 
         <!-- FCM -->
         <service
