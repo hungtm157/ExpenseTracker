@@ -68,6 +68,9 @@ class BudgetDetailActivity : BaseActivity(R.layout.activity_budget_detail), Budg
         val repository = BudgetRepository(apiService)
         controller = BudgetController(repository, this)
 
+        displayDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        parseDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
         // Get budget ID from intent
         budgetId = intent.getIntExtra("budget_id", -1)
         if (budgetId > 0) {

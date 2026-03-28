@@ -17,6 +17,20 @@ class BudgetController(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val TAG = "BudgetController"
 
+    private fun getErrorMessage(response: retrofit2.Response<*>): String {
+        return try {
+            val errorBody = response.errorBody()?.string()
+            if (errorBody != null) {
+                val json = org.json.JSONObject(errorBody)
+                json.optString("message", "Lỗi HTTP: ${response.code()}")
+            } else {
+                "Lỗi HTTP: ${response.code()}"
+            }
+        } catch (e: Exception) {
+            "Lỗi HTTP: ${response.code()}"
+        }
+    }
+
     /** Tải danh sách kế hoạch ngân sách (có hỗ trợ lọc theo ngày) */
     fun loadBudgets(fromDate: String? = null, toDate: String? = null) {
         Log.d(TAG, "loadBudgets: Khởi chạy tải danh sách kế hoạch ngân sách")
@@ -32,7 +46,7 @@ class BudgetController(
                     Log.d(TAG, "loadBudgets: Thành công, nhận ${budgets.size} kế hoạch")
                     listener.onBudgetsLoaded(budgets)
                 } else {
-                    val errorMsg = "Lỗi HTTP: ${response.code()} - ${response.message()}"
+                    val errorMsg = getErrorMessage(response)
                     Log.e(TAG, "loadBudgets: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -63,7 +77,7 @@ class BudgetController(
                         listener.onError("Không tìm thấy kế hoạch ngân sách")
                     }
                 } else {
-                    val errorMsg = "Lỗi HTTP: ${response.code()} - ${response.message()}"
+                    val errorMsg = getErrorMessage(response)
                     Log.e(TAG, "loadBudgetDetail: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -91,7 +105,7 @@ class BudgetController(
                         listener.onBudgetCreated(it)
                     }
                 } else {
-                    val errorMsg = "Lỗi tạo kế hoạch: ${response.code()}"
+                    val errorMsg = getErrorMessage(response)
                     Log.e(TAG, "createBudget: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -119,7 +133,7 @@ class BudgetController(
                         listener.onBudgetCompleted(it)
                     }
                 } else {
-                    val errorMsg = "Lỗi chốt kế hoạch: ${response.code()}"
+                    val errorMsg = getErrorMessage(response)
                     Log.e(TAG, "completeBudget: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -147,7 +161,7 @@ class BudgetController(
                         listener.onBudgetUpdated(it)
                     }
                 } else {
-                    val errorMsg = "Lỗi cập nhật kế hoạch: ${response.code()}"
+                    val errorMsg = getErrorMessage(response)
                     Log.e(TAG, "updateBudget: $errorMsg")
                     listener.onError(errorMsg)
                 }

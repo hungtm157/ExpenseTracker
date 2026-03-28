@@ -2,6 +2,7 @@ package com.example.expensetracker.features.wallet
 
 import android.util.Log
 import com.example.expensetracker.data.repository.WalletRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,7 +33,7 @@ class WalletController(
                     Log.d(TAG, "loadWallets: Thành công, nhận ${wallets.size} ví")
                     listener.onWalletsLoaded(wallets)
                 } else {
-                    val errorMsg = "Lỗi HTTP: ${response.code()} - ${response.message()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "loadWallets: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -61,7 +62,7 @@ class WalletController(
                         listener.onWalletCreated(it) 
                     }
                 } else {
-                    val errorMsg = "Lỗi tạo ví: ${response.code()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "createWallet: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -89,7 +90,7 @@ class WalletController(
                         listener.onWalletUpdated(it) 
                     }
                 } else {
-                    val errorMsg = "Lỗi cập nhật: ${response.code()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "updateWallet: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -115,7 +116,7 @@ class WalletController(
                     Log.d(TAG, "deleteWallet: Xóa thành công ví ID $id")
                     listener.onWalletDeleted(response.body()?.message ?: "Xóa thành công")
                 } else {
-                    val errorMsg = "Lỗi xóa: ${response.code()}"
+                    val errorMsg = parseErrorMessage(response.errorBody())
                     Log.e(TAG, "deleteWallet: $errorMsg")
                     listener.onError(errorMsg)
                 }
@@ -124,6 +125,18 @@ class WalletController(
                 listener.onLoading(false)
                 listener.onError("Không thể kết nối đến máy chủ")
             }
+        }
+    }
+    /**
+     * Helper trích xuất thông báo lỗi từ JSON body của API.
+     */
+    private fun parseErrorMessage(errorBody: okhttp3.ResponseBody?): String {
+        return try {
+            val errorJson = errorBody?.string()
+            val errorResponse = Gson().fromJson(errorJson, com.example.expensetracker.data.models.ErrorResponse::class.java)
+            errorResponse.message
+        } catch (e: Exception) {
+            "Đã có lỗi xảy ra, vui lòng thử lại"
         }
     }
 }

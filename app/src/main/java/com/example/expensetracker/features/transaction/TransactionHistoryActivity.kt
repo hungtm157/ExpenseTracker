@@ -31,6 +31,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_history), TransactionHistoryListener {
 
@@ -74,6 +75,10 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
     private var filterStartDate: String? = null
     private var filterEndDate: String? = null
 
+    private val apiFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+
     override fun initViews() {
         btnBack = findViewById(R.id.btnBack)
         etSearch = findViewById(R.id.etSearch)
@@ -111,20 +116,29 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
         currentType = null
         
         // Cài đặt mặc định là Tháng này
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val displayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         
-        filterEndDate = isoFormat.format(calendar.time)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        filterEndDate = apiFormat.format(calendar.time)
+
         calendar.set(Calendar.DAY_OF_MONTH, 1)
-        filterStartDate = isoFormat.format(calendar.time)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        filterStartDate = apiFormat.format(calendar.time)
 
         try {
-            val startDisp = displayFormat.format(isoFormat.parse(filterStartDate!!)!!)
-            val endDisp = displayFormat.format(isoFormat.parse(filterEndDate!!)!!)
+            val startDisp = displayFormat.format(apiFormat.parse(filterStartDate!!)!!)
+            val endDisp = displayFormat.format(apiFormat.parse(filterEndDate!!)!!)
             tvDateRange.text = "$startDisp - $endDisp"
         } catch (e: Exception) {
-            tvDateRange.text = "$filterStartDate - $filterEndDate"
+            tvDateRange.text = "Tháng này"
         }
 
         // Fetch data
@@ -184,11 +198,11 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
 
         fun updateDateViews() {
             try {
-                tvStartDate.text = tempStartDate?.let { displayFormat.format(isoFormat.parse(it)!!) } ?: ""
-                tvEndDate.text = tempEndDate?.let { displayFormat.format(isoFormat.parse(it)!!) } ?: ""
+                tvStartDate.text = tempStartDate?.let { displayFormat.format(apiFormat.parse(it)!!) } ?: ""
+                tvEndDate.text = tempEndDate?.let { displayFormat.format(apiFormat.parse(it)!!) } ?: ""
             } catch (e: Exception) {
-                tvStartDate.text = tempStartDate ?: ""
-                tvEndDate.text = tempEndDate ?: ""
+                tvStartDate.text = ""
+                tvEndDate.text = ""
             }
         }
         updateDateViews()
@@ -196,40 +210,67 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
         btnClose.setOnClickListener { bottomSheetDialog.dismiss() }
 
         tvStartDate.setOnClickListener {
-            showDatePicker(tempStartDate ?: "") { isoDate ->
+            showDatePicker(tempStartDate ?: "", true) { isoDate ->
                 tempStartDate = isoDate
                 updateDateViews()
             }
         }
 
         tvEndDate.setOnClickListener {
-            showDatePicker(tempEndDate ?: "") { isoDate ->
+            showDatePicker(tempEndDate ?: "", false) { isoDate ->
                 tempEndDate = isoDate
                 updateDateViews()
             }
         }
 
         chip7Days.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            tempEndDate = isoFormat.format(calendar.time)
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            calendar.set(Calendar.MILLISECOND, 999)
+            tempEndDate = apiFormat.format(calendar.time)
+            
             calendar.add(Calendar.DAY_OF_YEAR, -7)
-            tempStartDate = isoFormat.format(calendar.time)
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            tempStartDate = apiFormat.format(calendar.time)
             updateDateViews()
         }
 
         chip30Days.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            tempEndDate = isoFormat.format(calendar.time)
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            calendar.set(Calendar.MILLISECOND, 999)
+            tempEndDate = apiFormat.format(calendar.time)
+
             calendar.add(Calendar.DAY_OF_YEAR, -30)
-            tempStartDate = isoFormat.format(calendar.time)
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            tempStartDate = apiFormat.format(calendar.time)
             updateDateViews()
         }
 
         chipThisMonth.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            tempEndDate = isoFormat.format(calendar.time)
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            calendar.set(Calendar.MILLISECOND, 999)
+            tempEndDate = apiFormat.format(calendar.time)
+
             calendar.set(Calendar.DAY_OF_MONTH, 1)
-            tempStartDate = isoFormat.format(calendar.time)
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            tempStartDate = apiFormat.format(calendar.time)
             updateDateViews()
         }
 
@@ -239,11 +280,11 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
             
             if (filterStartDate != null && filterEndDate != null) {
                 try {
-                    val startDisp = displayFormat.format(isoFormat.parse(filterStartDate!!)!!)
-                    val endDisp = displayFormat.format(isoFormat.parse(filterEndDate!!)!!)
+                    val startDisp = displayFormat.format(apiFormat.parse(filterStartDate!!)!!)
+                    val endDisp = displayFormat.format(apiFormat.parse(filterEndDate!!)!!)
                     tvDateRange.text = "$startDisp - $endDisp"
                 } catch (e: Exception) {
-                     tvDateRange.text = "$filterStartDate - $filterEndDate"
+                     tvDateRange.text = "Tùy chọn"
                 }
             } else {
                 tvDateRange.text = "Tất cả thời gian"
@@ -256,21 +297,26 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
         bottomSheetDialog.show()
     }
 
-    private fun showDatePicker(currentIsoDate: String, onDateSelected: (String) -> Unit) {
-        val calendar = Calendar.getInstance()
-        val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private fun showDatePicker(currentIsoDate: String, isStart: Boolean, onDateSelected: (String) -> Unit) {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         if (currentIsoDate.isNotEmpty()) {
             try {
-                calendar.time = isoFormat.parse(currentIsoDate)!!
+                calendar.time = apiFormat.parse(currentIsoDate)!!
             } catch (e: Exception) {}
         }
 
         DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(year, month, dayOfMonth)
-                onDateSelected(isoFormat.format(selectedCalendar.time))
+                val selectedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                if (isStart) {
+                    selectedCalendar.set(year, month, dayOfMonth, 0, 0, 0)
+                    selectedCalendar.set(Calendar.MILLISECOND, 0)
+                } else {
+                    selectedCalendar.set(year, month, dayOfMonth, 23, 59, 59)
+                    selectedCalendar.set(Calendar.MILLISECOND, 999)
+                }
+                onDateSelected(apiFormat.format(selectedCalendar.time))
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),

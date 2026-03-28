@@ -88,27 +88,10 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener, Budge
         recyclerBudgets.layoutManager = LinearLayoutManager(requireContext())
         recyclerBudgets.adapter = adapter
 
-        // Set current month/year as initial filter (yyyy-MM-dd)
-        val initialCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        val initialSdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-        
-        // Start of current month
-        initialCal.set(Calendar.HOUR_OF_DAY, 0)
-        initialCal.set(Calendar.MINUTE, 0)
-        initialCal.set(Calendar.SECOND, 0)
-        initialCal.set(Calendar.MILLISECOND, 0)
-        initialCal.set(Calendar.DAY_OF_MONTH, 1)
-        filterFromDate = initialSdf.format(initialCal.time)
-        
-        // End of current month
-        initialCal.set(Calendar.DAY_OF_MONTH, initialCal.getActualMaximum(Calendar.DAY_OF_MONTH))
-        initialCal.set(Calendar.HOUR_OF_DAY, 23)
-        initialCal.set(Calendar.MINUTE, 59)
-        initialCal.set(Calendar.SECOND, 59)
-        initialCal.set(Calendar.MILLISECOND, 999)
-        filterToDate = initialSdf.format(initialCal.time)
+        // Luôn bắt đầu với trạng thái bộ lọc sạch sẽ (Tất cả)
+        filterFromDate = null
+        filterToDate = null
+        tvMonthYear.text = "(Tất cả)"
 
         // Load budgets
         controller.loadBudgets(filterFromDate, filterToDate)
@@ -173,39 +156,16 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener, Budge
 
     // ─── BudgetFilterDialog.OnFilterApplied ───────────────────────────────────
 
-    override fun onFilterApplied(month: Int, year: Int) {
-        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-
-        // Ngày đầu tháng (00:00:00)
-        cal.set(Calendar.YEAR, year)
-        cal.set(Calendar.MONTH, month - 1)
-        cal.set(Calendar.DAY_OF_MONTH, 1)
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-        filterFromDate = sdf.format(cal.time)
-
-        // Ngày cuối tháng (23:59:59)
-        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
-        cal.set(Calendar.HOUR_OF_DAY, 23)
-        cal.set(Calendar.MINUTE, 59)
-        cal.set(Calendar.SECOND, 59)
-        cal.set(Calendar.MILLISECOND, 999)
-        filterToDate = sdf.format(cal.time)
-
-        // Cập nhật label tháng/năm thay vì "(Đã lọc)"
-        tvMonthYear.text = "($month/$year)"
-
+    override fun onFilterApplied(fromDate: String?, toDate: String?, label: String) {
+        this.filterFromDate = fromDate
+        this.filterToDate = toDate
+        tvMonthYear.text = "($label)"
         controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     override fun onReset() {
         val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
 
@@ -213,11 +173,11 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener, Budge
         val year = cal.get(Calendar.YEAR)
 
         // Ngày đầu tháng hiện tại
-        cal.set(Calendar.DAY_OF_MONTH, 1)
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
+        cal.set(Calendar.DAY_OF_MONTH, 1)
         filterFromDate = sdf.format(cal.time)
 
         // Ngày cuối tháng hiện tại
@@ -229,6 +189,13 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener, Budge
         filterToDate = sdf.format(cal.time)
 
         tvMonthYear.text = "($month/$year)"
+        controller.loadBudgets(filterFromDate, filterToDate)
+    }
+
+    override fun onClear() {
+        filterFromDate = null
+        filterToDate = null
+        tvMonthYear.text = "(Tất cả)"
         controller.loadBudgets(filterFromDate, filterToDate)
     }
 
