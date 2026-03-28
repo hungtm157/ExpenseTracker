@@ -79,6 +79,10 @@
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
 
+        <!-- More / About & Privacy -->
+        <activity android:name=".features.more.AboutAppActivity" />
+        <activity android:name=".features.more.PrivacyPolicyActivity" />
+
         <!-- FCM -->
         <service
             android:name=".core.fcm.MyFirebaseMessagingService"

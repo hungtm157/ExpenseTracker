@@ -147,10 +147,10 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
             startActivity(Intent(requireContext(), com.example.expensetracker.features.notification.NotificationActivity::class.java))
         }
         menuSecurity.setOnClickListener {
-            Toast.makeText(requireContext(), "Bảo mật", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(requireContext(), PrivacyPolicyActivity::class.java))
         }
         menuAbout.setOnClickListener {
-            Toast.makeText(requireContext(), "Về ứng dụng", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(requireContext(), AboutAppActivity::class.java))
         }
         btnLogout.setOnClickListener {
             // Xoá toàn bộ: authToken, userId, userName, isLoggedIn
