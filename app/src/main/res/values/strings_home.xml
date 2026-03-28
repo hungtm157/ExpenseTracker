@@ -7,7 +7,7 @@
     <string name="title_more">Khác</string>
 
     <!-- HomeFragment -->
-    <string name="hello_user">Xin chào, Sáng 👋</string>
+    <string name="hello_user">Xin chào👋</string>
     <string name="month_label">Tháng</string>
     <string name="current_month">02/2026</string>
     <string name="expense">Chi tiêu</string>

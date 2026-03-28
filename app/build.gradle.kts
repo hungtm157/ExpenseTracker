@@ -75,6 +75,9 @@ dependencies {
     // AdMob
     implementation("com.google.android.gms:play-services-ads:23.0.0")
 
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
     // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
