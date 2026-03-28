@@ -311,7 +311,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
             .setTitle("Tính năng Premium")
             .setMessage("Quét hóa đơn OCR chỉ dành cho tài khoản Premium.\nVui lòng nâng cấp để sử dụng tính năng này.")
             .setPositiveButton("Nâng cấp") { _, _ ->
-                Toast.makeText(this, "Chuyển sang màn hình nâng cấp", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, com.example.expensetracker.features.premium.PremiumActivity::class.java))
             }
             .setNegativeButton("Để sau", null)
             .show()
