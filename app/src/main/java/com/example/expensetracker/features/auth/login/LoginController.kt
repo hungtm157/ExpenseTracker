@@ -4,6 +4,8 @@ import com.example.expensetracker.App
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.models.LoginRequest
+import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +20,7 @@ class LoginController(private val listener: LoginListener) {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val apiService = ApiClient.create(ApiService::class.java)
     private val prefs = App.instance.preferences
+    private val TAG = "LoginController"
 
     /**
      * @param email    Email người dùng
@@ -49,6 +52,10 @@ class LoginController(private val listener: LoginListener) {
                             prefs.userName = user.fullName
                             prefs.userId = user.id.toLong()
                             prefs.userType = user.type
+
+                            // Lấy FCM token và gửi lên server
+                            fetchAndSendFcmToken()
+
                             listener.onLoginSuccess()
                         } else {
                             listener.onLoginFailure("Phản hồi từ máy chủ không hợp lệ")
@@ -62,6 +69,26 @@ class LoginController(private val listener: LoginListener) {
                 listener.onLoginLoading(false)
                 listener.onLoginFailure("Không thể kết nối đến máy chủ")
             }
+        }
+    }
+
+    /** Lấy FCM token hiện tại và gửi lên server */
+    private fun fetchAndSendFcmToken() {
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            Log.d(TAG, "FCM token: $token")
+            prefs.fcmToken = token
+            scope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        apiService.updateFcmToken(mapOf("fcmToken" to token))
+                    }
+                    Log.d(TAG, "FCM token đã gửi lên server thành công")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Lỗi gửi FCM token lên server", e)
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Lỗi lấy FCM token", e)
         }
     }
 

@@ -72,6 +72,9 @@ interface ApiService {
     @PATCH("api/v1/user/update-avatar")
     suspend fun updateAvatar(@Part avatar: MultipartBody.Part?): Response<ProfileApiResponse>
 
+    @PATCH("api/v1/user/update-fcm-token")
+    suspend fun updateFcmToken(@Body body: Map<String, String>): Response<Void>
+
     // ─── Categories ──────────────────────────────────────────────────────────
 
     @GET("api/v1/categories")
@@ -176,7 +179,15 @@ interface ApiService {
     // ─── Budget ──────────────────────────────────────────────────────────────
 
     @GET("api/v1/budgets")
-    suspend fun getBudgets(): Response<com.example.expensetracker.features.plan.BudgetListResponse>
+    suspend fun getBudgets(
+        @Query("from_date") fromDate: String? = null,
+        @Query("to_date") toDate: String? = null
+    ): Response<com.example.expensetracker.features.plan.BudgetListResponse>
+
+    @GET("api/v1/budgets/{id}")
+    suspend fun getBudgetDetail(
+        @Path("id") id: Int
+    ): Response<com.example.expensetracker.features.plan.BudgetDetailResponse>
 
     @POST("api/v1/budgets")
     suspend fun createBudget(
@@ -227,5 +238,19 @@ interface ApiService {
         @Query("from_date") fromDate: String? = null,
         @Query("to_date") toDate: String? = null
     ): Response<com.example.expensetracker.data.models.StatisticsIncomeVsExpenseResponse>
+
+    // ─── Notifications ───────────────────────────────────────────────────────
+
+    @GET("api/v1/notifications")
+    suspend fun getNotifications(): Response<com.example.expensetracker.features.notification.NotificationListResponse>
+
+    @PATCH("api/v1/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: Int): Response<Void>
+
+    @DELETE("api/v1/notifications/{id}")
+    suspend fun deleteNotification(@Path("id") id: Int): Response<Void>
+
+    @DELETE("api/v1/notifications")
+    suspend fun deleteAllNotifications(): Response<Void>
 
 }

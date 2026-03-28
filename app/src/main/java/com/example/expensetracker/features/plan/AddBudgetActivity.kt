@@ -315,6 +315,10 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
         // Not used in this activity
     }
 
+    override fun onBudgetDetailLoaded(budget: BudgetModel) {
+        // Not used in this activity
+    }
+
     override fun onBudgetCreated(budget: BudgetModel) {
         Toast.makeText(this, "Đã tạo kế hoạch ngân sách thành công!", Toast.LENGTH_SHORT).show()
         finish()

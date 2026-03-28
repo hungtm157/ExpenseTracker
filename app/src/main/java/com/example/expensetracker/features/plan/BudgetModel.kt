@@ -71,3 +71,12 @@ data class BudgetUpdateRequest(
     @SerializedName("is_alert_enabled") val isAlertEnabled: Boolean? = null,
     @SerializedName("alert_threshold") val alertThreshold: Double? = null
 )
+
+/**
+ * BudgetDetailResponse — Wrapper cho chi tiết budget trả về từ API.
+ */
+data class BudgetDetailResponse(
+    @SerializedName("status") val status: Int,
+    @SerializedName("message") val message: String,
+    @SerializedName("data") val data: BudgetModel?
+)

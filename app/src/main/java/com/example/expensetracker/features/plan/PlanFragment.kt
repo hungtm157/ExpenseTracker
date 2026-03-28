@@ -21,9 +21,10 @@ import java.util.Calendar
 /**
  * PlanFragment — Màn hình Kế hoạch ngân sách (tab thứ ba trong Bottom Navigation).
  */
-class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
+class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener, BudgetFilterDialog.OnFilterApplied {
 
     private lateinit var tvMonthYear: TextView
+    private lateinit var btnCalendar: ImageView
     private lateinit var btnAddBudget: ImageView
     private lateinit var tabExpense: TextView
     private lateinit var tabIncome: TextView
@@ -40,8 +41,13 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
     private val decimalFormat = DecimalFormat("#,###")
     private var currentTab = "EXPENSE" // EXPENSE or INCOME
 
+    // Filter state
+    private var filterFromDate: String? = null
+    private var filterToDate: String? = null
+
     override fun initViews(view: View) {
         tvMonthYear = view.findViewById(R.id.tvMonthYear)
+        btnCalendar = view.findViewById(R.id.btnCalendar)
         btnAddBudget = view.findViewById(R.id.btnAddBudget)
         tabExpense = view.findViewById(R.id.tabExpense)
         tabIncome = view.findViewById(R.id.tabIncome)
@@ -63,16 +69,10 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
         val repository = BudgetRepository(apiService)
         controller = BudgetController(repository, this)
 
-        // Init Adapter — click to edit
+        // Init Adapter — click to open BudgetDetailActivity
         adapter = BudgetAdapter(emptyList()) { budget ->
-            val intent = Intent(requireContext(), AddBudgetActivity::class.java)
+            val intent = Intent(requireContext(), BudgetDetailActivity::class.java)
             intent.putExtra("budget_id", budget.id)
-            intent.putExtra("category_id", budget.categoryId)
-            intent.putExtra("amount_limit", budget.amountLimit)
-            intent.putExtra("start_date", budget.startDate)
-            intent.putExtra("end_date", budget.endDate)
-            intent.putExtra("is_alert_enabled", budget.isAlertEnabled)
-            intent.putExtra("alert_threshold", budget.alertThreshold)
             startActivity(intent)
         }
 
@@ -80,7 +80,7 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
         recyclerBudgets.adapter = adapter
 
         // Load budgets
-        controller.loadBudgets()
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     override fun initListeners() {
@@ -96,11 +96,17 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
             }
         }
 
+        btnCalendar.setOnClickListener {
+            val dialog = BudgetFilterDialog()
+            dialog.setOnFilterAppliedListener(this)
+            dialog.show(childFragmentManager, "BudgetFilterDialog")
+        }
+
         tabExpense.setOnClickListener {
             if (currentTab != "EXPENSE") {
                 currentTab = "EXPENSE"
                 updateTabUI()
-                controller.loadBudgets()
+                controller.loadBudgets(filterFromDate, filterToDate)
             }
         }
 
@@ -108,14 +114,14 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
             if (currentTab != "INCOME") {
                 currentTab = "INCOME"
                 updateTabUI()
-                controller.loadBudgets()
+                controller.loadBudgets(filterFromDate, filterToDate)
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        controller.loadBudgets()
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     private fun updateTabUI() {
@@ -130,6 +136,25 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
             tabExpense.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             tabExpense.setTextColor(resources.getColor(R.color.text_secondary, null))
         }
+    }
+
+    // ─── BudgetFilterDialog.OnFilterApplied ───────────────────────────────────
+
+    override fun onFilterApplied(fromDate: String?, toDate: String?) {
+        filterFromDate = fromDate
+        filterToDate = toDate
+
+        // Cập nhật label tháng/năm
+        if (fromDate == null && toDate == null) {
+            val cal = Calendar.getInstance()
+            val month = cal.get(Calendar.MONTH) + 1
+            val year = cal.get(Calendar.YEAR)
+            tvMonthYear.text = "($month/$year)"
+        } else {
+            tvMonthYear.text = "(Đã lọc)"
+        }
+
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     // ─── BudgetListener Callbacks ────────────────────────────────────────────
@@ -162,19 +187,23 @@ class PlanFragment : BaseFragment(R.layout.fragment_plan), BudgetListener {
         tvAvgPerDay.text = "đ${decimalFormat.format(avgPerDay)}"
     }
 
+    override fun onBudgetDetailLoaded(budget: BudgetModel) {
+        // Not used in this fragment
+    }
+
     override fun onBudgetCreated(budget: BudgetModel) {
         Toast.makeText(requireContext(), "Đã tạo kế hoạch ngân sách", Toast.LENGTH_SHORT).show()
-        controller.loadBudgets()
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     override fun onBudgetUpdated(budget: BudgetModel) {
         Toast.makeText(requireContext(), "Đã cập nhật kế hoạch ngân sách", Toast.LENGTH_SHORT).show()
-        controller.loadBudgets()
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     override fun onBudgetCompleted(budget: BudgetModel) {
         Toast.makeText(requireContext(), "Đã chốt kế hoạch ngân sách", Toast.LENGTH_SHORT).show()
-        controller.loadBudgets()
+        controller.loadBudgets(filterFromDate, filterToDate)
     }
 
     override fun onLoading(isLoading: Boolean) {
