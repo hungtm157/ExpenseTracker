@@ -256,4 +256,9 @@ interface ApiService {
     @DELETE("api/v1/notifications")
     suspend fun deleteAllNotifications(): Response<Void>
 
+    // ─── Payment ─────────────────────────────────────────────────────────────
+
+    @POST("api/payment/checkout")
+    suspend fun checkout(): Response<com.example.expensetracker.data.models.CheckoutResponse>
+
 }

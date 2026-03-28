@@ -13,6 +13,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.features.notification.NotificationActivity
+import com.example.expensetracker.features.premium.PremiumActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
  * MyFirebaseMessagingService — xử lý FCM token và push notification.
  * - onNewToken: lưu token mới, gửi lên server nếu đã đăng nhập.
  * - onMessageReceived: hiển thị notification khi app đang foreground hoặc background.
+ * - UPGRADE_SUCCESS: cập nhật prefs + gửi broadcast cho PremiumActivity.
  */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -59,11 +61,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     /**
      * Gọi khi nhận được push notification.
-     * - Foreground: Luôn được gọi → hiển thị notification thủ công.
-     * - Background với data-only message: Cũng được gọi.
-     * - Background với notification payload: KHÔNG được gọi (hệ thống tự hiển thị).
-     *
-     * Để đảm bảo app luôn nhận được, ta xử lý cả notification và data payload ở đây.
+     * Xử lý cả notification và data payload.
+     * Nếu data type = UPGRADE_SUCCESS → cập nhật prefs + gửi broadcast.
      */
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
@@ -78,12 +77,35 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: message.data["body"]
             ?: ""
 
-        showNotification(title, body)
+        val dataType = message.data["type"] ?: ""
+
+        // Xử lý trường hợp UPGRADE_SUCCESS
+        if (dataType == "UPGRADE_SUCCESS") {
+            handleUpgradeSuccess()
+        }
+
+        showNotification(title, body, dataType)
+    }
+
+    /**
+     * Cập nhật userType thành PREMIUM và gửi broadcast tới PremiumActivity.
+     */
+    private fun handleUpgradeSuccess() {
+        val prefs = App.instance.preferences
+        prefs.userType = "PREMIUM"
+        Log.d(TAG, "User đã được nâng cấp lên PREMIUM")
+
+        // Gửi broadcast tới PremiumActivity (nếu đang mở)
+        val intent = Intent(PremiumActivity.ACTION_UPGRADE_SUCCESS).apply {
+            setPackage(packageName)
+        }
+        sendBroadcast(intent)
+        Log.d(TAG, "Đã gửi broadcast UPGRADE_SUCCESS tới ứng dụng")
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(title: String, body: String, dataType: String = "") {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Tạo channel (bắt buộc từ Android 8+)

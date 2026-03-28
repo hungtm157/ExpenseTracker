@@ -85,8 +85,11 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         tvFullName.text = "Đang tải..."
         tvEmail.text = "..."
         layoutPremiumBanner.visibility = View.GONE
+    }
 
-        // Tải profile ngay khi mở màn
+    override fun onResume() {
+        super.onResume()
+        // Tải profile mỗi khi người dùng xem màn hình này (để cập nhật trạng thái PREMIUM ngay lập tức)
         controller.fetchProfile()
     }
 
@@ -123,7 +126,7 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         }
 
         btnUpgradePremium.setOnClickListener {
-            Toast.makeText(this, "Chuyển sang màn hình Nâng cấp giao diện", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, com.example.expensetracker.features.premium.PremiumActivity::class.java))
         }
 
         btnLogout.setOnClickListener {

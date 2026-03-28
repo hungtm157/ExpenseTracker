@@ -73,6 +73,9 @@
             </intent-filter>
         </activity>
 
+        <!-- Premium -->
+        <activity android:name=".features.premium.PremiumActivity" />
+
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
 
