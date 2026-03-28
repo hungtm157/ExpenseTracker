@@ -71,7 +71,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private var isExpense = true
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("vi", "VN"))
-    private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
     private val moneyFormat = DecimalFormat("#,###")
 
     private var walletsList = mutableListOf<WalletModel>()
@@ -243,6 +245,16 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 return@setOnClickListener
             }
 
+            // Chuẩn hóa ngày về 00:00:00.000 UTC
+            val apiCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = calendar.timeInMillis
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val dateStr = apiDateFormat.format(apiCal.time)
+
             if (editingTransaction != null) {
                 // UPDATE MODE
                 controller.updateTransaction(
@@ -250,7 +262,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     walletId = selectedWallet?.id ?: 0, 
                     categoryId = categoryId,
                     amount = amount,
-                    date = apiDateFormat.format(calendar.time),
+                    date = dateStr,
                     note = note,
                     currency = selectedWallet?.currency
                 )
@@ -261,7 +273,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     walletId = selectedWallet?.id ?: 0, 
                     categoryId = categoryId,
                     amount = amount,
-                    date = apiDateFormat.format(calendar.time),
+                    date = dateStr,
                     note = note,
                     currency = selectedWallet?.currency,
                     source = if (isFromOcr) TransactionSource.OCR_SCAN else TransactionSource.MANUAL

@@ -24,6 +24,7 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * HomeFragment — Màn hình Tổng quan (tab đầu tiên trong Bottom Navigation).
@@ -223,25 +224,30 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         val walletRepo = com.example.expensetracker.data.repository.WalletRepository(apiService)
 
         // Tính toán ISO time string của start of day và end of day
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-        val calendar = Calendar.getInstance()
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         val fromDate = sdf.format(calendar.time)
 
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
         calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
         val toDate = sdf.format(calendar.time)
 
         // Tính toán FromDate và ToDate cho Start of month -> end of month (Current month)
-        val monthCal = Calendar.getInstance()
+        val monthCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         monthCal.set(Calendar.DAY_OF_MONTH, 1)
         monthCal.set(Calendar.HOUR_OF_DAY, 0)
         monthCal.set(Calendar.MINUTE, 0)
         monthCal.set(Calendar.SECOND, 0)
+        monthCal.set(Calendar.MILLISECOND, 0)
         val monthFromDate = sdf.format(monthCal.time)
 
         val lastDay = monthCal.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -249,6 +255,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         monthCal.set(Calendar.HOUR_OF_DAY, 23)
         monthCal.set(Calendar.MINUTE, 59)
         monthCal.set(Calendar.SECOND, 59)
+        monthCal.set(Calendar.MILLISECOND, 999)
         val monthToDate = sdf.format(monthCal.time)
 
         lifecycleScope.launch {

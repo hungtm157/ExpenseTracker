@@ -81,6 +81,8 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
         controller = BudgetController(repository, this)
 
         apiDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        parseDateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
         // Check edit mode
         editBudgetId = intent.getIntExtra("budget_id", -1)
@@ -110,7 +112,13 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
                 try {
                     val parsed = parseDateFormat.parse(startDateStr.substringBefore("."))
                     if (parsed != null) {
-                        startDate = Calendar.getInstance().apply { time = parsed }
+                        startDate = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                            time = parsed
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
                         tvStartDate.text = dateFormat.format(startDate!!.time)
                     }
                 } catch (_: Exception) {}
@@ -119,7 +127,13 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
                 try {
                     val parsed = parseDateFormat.parse(endDateStr.substringBefore("."))
                     if (parsed != null) {
-                        endDate = Calendar.getInstance().apply { time = parsed }
+                        endDate = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                            time = parsed
+                            set(Calendar.HOUR_OF_DAY, 23)
+                            set(Calendar.MINUTE, 59)
+                            set(Calendar.SECOND, 59)
+                            set(Calendar.MILLISECOND, 999)
+                        }
                         tvEndDate.text = dateFormat.format(endDate!!.time)
                     }
                 } catch (_: Exception) {}
@@ -211,8 +225,14 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
         DatePickerDialog(
             this,
             { _, year, month, day ->
-                val selected = Calendar.getInstance().apply {
-                    set(year, month, day)
+                val selected = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                    if (isStart) {
+                        set(year, month, day, 0, 0, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    } else {
+                        set(year, month, day, 23, 59, 59)
+                        set(Calendar.MILLISECOND, 999)
+                    }
                 }
                 if (isStart) {
                     startDate = selected
@@ -229,29 +249,52 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
     }
 
     private fun setThisWeek() {
-        val cal = Calendar.getInstance()
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        
         cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
         startDate = cal.clone() as Calendar
         tvStartDate.text = dateFormat.format(startDate!!.time)
 
         cal.add(Calendar.DAY_OF_WEEK, 6)
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.set(Calendar.MILLISECOND, 999)
         endDate = cal.clone() as Calendar
         tvEndDate.text = dateFormat.format(endDate!!.time)
     }
 
     private fun setThisMonth() {
-        val cal = Calendar.getInstance()
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        
         cal.set(Calendar.DAY_OF_MONTH, 1)
         startDate = cal.clone() as Calendar
         tvStartDate.text = dateFormat.format(startDate!!.time)
 
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.set(Calendar.MILLISECOND, 999)
         endDate = cal.clone() as Calendar
         tvEndDate.text = dateFormat.format(endDate!!.time)
     }
 
     private fun setThisYear() {
-        val cal = Calendar.getInstance()
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        
         cal.set(Calendar.MONTH, Calendar.JANUARY)
         cal.set(Calendar.DAY_OF_MONTH, 1)
         startDate = cal.clone() as Calendar
@@ -259,6 +302,10 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
 
         cal.set(Calendar.MONTH, Calendar.DECEMBER)
         cal.set(Calendar.DAY_OF_MONTH, 31)
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.set(Calendar.MILLISECOND, 999)
         endDate = cal.clone() as Calendar
         tvEndDate.text = dateFormat.format(endDate!!.time)
     }

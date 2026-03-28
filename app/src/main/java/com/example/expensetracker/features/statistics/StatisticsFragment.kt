@@ -154,10 +154,12 @@ class StatisticsFragment : BaseFragment(R.layout.fragment_statistics) {
     }
 
     private fun getDateRange(): Pair<String, String> {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
 
-        val from = Calendar.getInstance().apply { time = currentDate.time }
-        val to = Calendar.getInstance().apply { time = currentDate.time }
+        val from = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { time = currentDate.time }
+        val to = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { time = currentDate.time }
 
         if (timeMode == "MONTH") {
             from.set(Calendar.DAY_OF_MONTH, 1)
