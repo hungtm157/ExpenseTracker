@@ -239,4 +239,18 @@ interface ApiService {
         @Query("to_date") toDate: String? = null
     ): Response<com.example.expensetracker.data.models.StatisticsIncomeVsExpenseResponse>
 
+    // ─── Notifications ───────────────────────────────────────────────────────
+
+    @GET("api/v1/notifications")
+    suspend fun getNotifications(): Response<com.example.expensetracker.features.notification.NotificationListResponse>
+
+    @PATCH("api/v1/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: Int): Response<Void>
+
+    @DELETE("api/v1/notifications/{id}")
+    suspend fun deleteNotification(@Path("id") id: Int): Response<Void>
+
+    @DELETE("api/v1/notifications")
+    suspend fun deleteAllNotifications(): Response<Void>
+
 }

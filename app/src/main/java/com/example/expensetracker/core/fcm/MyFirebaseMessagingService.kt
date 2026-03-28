@@ -12,7 +12,7 @@ import com.example.expensetracker.App
 import com.example.expensetracker.R
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
-import com.example.expensetracker.features.auth.login.LoginActivity
+import com.example.expensetracker.features.notification.NotificationActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 /**
  * MyFirebaseMessagingService — xử lý FCM token và push notification.
  * - onNewToken: lưu token mới, gửi lên server nếu đã đăng nhập.
- * - onMessageReceived: hiển thị notification khi app đang foreground.
+ * - onMessageReceived: hiển thị notification khi app đang foreground hoặc background.
  */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -58,12 +58,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     /**
-     * Gọi khi nhận được push notification trong lúc app đang foreground.
-     * Khi app ở background, hệ thống tự hiển thị notification từ payload.
+     * Gọi khi nhận được push notification.
+     * - Foreground: Luôn được gọi → hiển thị notification thủ công.
+     * - Background với data-only message: Cũng được gọi.
+     * - Background với notification payload: KHÔNG được gọi (hệ thống tự hiển thị).
+     *
+     * Để đảm bảo app luôn nhận được, ta xử lý cả notification và data payload ở đây.
      */
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.d(TAG, "From: ${message.from}")
+        Log.d(TAG, "onMessageReceived — From: ${message.from}")
+        Log.d(TAG, "onMessageReceived — Data: ${message.data}")
+        Log.d(TAG, "onMessageReceived — Notification: ${message.notification?.title} | ${message.notification?.body}")
 
         val title = message.notification?.title
             ?: message.data["title"]
@@ -72,7 +78,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: message.data["body"]
             ?: ""
 
-        Log.d(TAG, "Notification — title: $title | body: $body")
         showNotification(title, body)
     }
 
@@ -95,13 +100,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             manager.createNotificationChannel(channel)
         }
 
-        // Intent mở LoginActivity khi tap vào notification
-        val intent = Intent(this, LoginActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        // Intent mở NotificationActivity khi tap vào notification
+        val intent = Intent(this, NotificationActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -111,6 +116,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setContentIntent(pendingIntent)
             .build()
 

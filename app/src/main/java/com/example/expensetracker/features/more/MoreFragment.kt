@@ -144,7 +144,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
             }
         }
         menuNotifications.setOnClickListener {
-            Toast.makeText(requireContext(), "Thông báo", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(requireContext(), com.example.expensetracker.features.notification.NotificationActivity::class.java))
         }
         menuSecurity.setOnClickListener {
             Toast.makeText(requireContext(), "Bảo mật", Toast.LENGTH_SHORT).show()

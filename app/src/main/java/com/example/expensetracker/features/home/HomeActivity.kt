@@ -1,7 +1,12 @@
 package com.example.expensetracker.features.home
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
@@ -35,6 +40,9 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
             // Show ad on app entry
             AdManager.showInterstitialAd(this) {}
         }
+
+        // Yêu cầu quyền thông báo cho Android 13+
+        requestNotificationPermission()
     }
 
     override fun initListeners() {
@@ -72,5 +80,23 @@ class HomeActivity : BaseActivity(R.layout.activity_home) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()
+    }
+
+    /**
+     * Android 13 (API 33+) yêu cầu quyền POST_NOTIFICATIONS tại runtime.
+     * Nếu chưa được cấp → hiện dialog xin quyền.
+     */
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
     }
 }
