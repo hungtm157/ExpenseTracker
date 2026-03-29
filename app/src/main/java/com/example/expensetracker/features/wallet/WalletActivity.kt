@@ -1,6 +1,8 @@
 package com.example.expensetracker.features.wallet
 
 import android.app.AlertDialog
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +15,8 @@ import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.repository.WalletRepository
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 /**
  * WalletActivity — Màn hình Quản lý ví.
@@ -30,7 +34,37 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
     private lateinit var adapter: WalletAdapter
     private lateinit var controller: WalletController
     
-    private val decimalFormat = DecimalFormat("#,###")
+    private val decimalFormat = DecimalFormat("#,###", DecimalFormatSymbols(Locale.US))
+
+    private fun getAmountWatcher(editText: EditText) = object : TextWatcher {
+        private var current = ""
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val input = s.toString()
+            if (input != current) {
+                editText.removeTextChangedListener(this)
+
+                val cleanString = input.replace(",", "")
+                if (cleanString.isNotEmpty()) {
+                    try {
+                        val parsed = cleanString.toDouble()
+                        val formatted = decimalFormat.format(parsed)
+
+                        current = formatted
+                        editText.setText(formatted)
+                        editText.setSelection(formatted.length)
+                    } catch (e: Exception) {
+                        current = ""
+                    }
+                } else {
+                    current = ""
+                }
+
+                editText.addTextChangedListener(this)
+            }
+        }
+        override fun afterTextChanged(s: Editable?) {}
+    }
 
     override fun initViews() {
         btnBack = findViewById(R.id.imgBack)
@@ -87,7 +121,7 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
         if (wallet != null) {
             tvDialogTitle.text = "Sửa ví"
             etName.setText(wallet.name)
-            etBalance.setText(wallet.balance.toString())
+            etBalance.setText(decimalFormat.format(wallet.balance))
             when (wallet.type) {
                 WalletType.CASH -> rgType.check(R.id.rbCash)
                 WalletType.BANK_ACCOUNT -> rgType.check(R.id.rbBank)
@@ -95,9 +129,12 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
             }
         }
 
+        etBalance.addTextChangedListener(getAmountWatcher(etBalance))
+
         btnSave.setOnClickListener {
             val name = etName.text.toString().trim()
-            val balance = etBalance.text.toString().toDoubleOrNull() ?: 0.0
+            val balanceStr = etBalance.text.toString().replace(",", "")
+            val balance = balanceStr.toDoubleOrNull() ?: 0.0
             val type = when (rgType.checkedRadioButtonId) {
                 R.id.rbCash -> WalletType.CASH
                 R.id.rbBank -> WalletType.BANK_ACCOUNT
@@ -148,12 +185,12 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
     }
 
     override fun onWalletCreated(wallet: WalletModel) {
-        Toast.makeText(this, "Đã thêm ví: ${wallet.name}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Đã thêm ví", Toast.LENGTH_SHORT).show()
         controller.loadWallets()
     }
 
     override fun onWalletUpdated(wallet: WalletModel) {
-        Toast.makeText(this, "Đã cập nhật ví: ${wallet.name}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Đã cập nhật ví", Toast.LENGTH_SHORT).show()
         controller.loadWallets()
     }
 

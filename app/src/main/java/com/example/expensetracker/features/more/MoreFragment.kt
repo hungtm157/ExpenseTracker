@@ -17,6 +17,8 @@ import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.repository.AuthRepository
+import com.example.expensetracker.data.repository.BudgetRepository
+import com.example.expensetracker.data.repository.TransactionRepository
 import com.example.expensetracker.features.profile.ProfileController
 import com.example.expensetracker.features.profile.ProfileListener
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +76,9 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
         // Setup controller
         val apiService = ApiClient.create(ApiService::class.java)
         val repository = AuthRepository(apiService)
-        controller = ProfileController(repository, this)
+        val transactionRepo = TransactionRepository(apiService)
+        val budgetRepo = BudgetRepository(apiService)
+        controller = ProfileController(repository, transactionRepo, budgetRepo, this)
 
         tvUserName.text = "Đang tải..."
         tvUserEmail.text = "..."
@@ -201,4 +205,5 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
     override fun onNameUpdateError(message: String) {}
     override fun onAvatarUpdated(profile: UserProfileResponse) {}
     override fun onAvatarUpdateError(message: String) {}
+    override fun onStatsLoaded(transactionCount: Int, budgetCount: Int) {}
 }

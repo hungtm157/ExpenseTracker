@@ -5,8 +5,9 @@ import android.app.DatePickerDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.*
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -32,12 +33,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.*
 import com.example.expensetracker.features.transaction.TransactionModel
 import com.google.gson.Gson
 import com.example.expensetracker.utils.DateTimeUtils
 import android.content.Intent
+import android.view.View
 
 /**
  * AddTransactionActivity — Màn hình thêm giao dịch mới.
@@ -74,7 +77,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
         timeZone = TimeZone.getTimeZone("UTC")
     }
-    private val moneyFormat = DecimalFormat("#,###")
+    private val moneyFormat = DecimalFormat("#,###").apply {
+        decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+    }
 
     private var walletsList = mutableListOf<WalletModel>()
     private var selectedWallet: WalletModel? = null
@@ -117,6 +122,38 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 Toast.makeText(this, "Không thể xử lý ảnh từ thư viện", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private val amountWatcher = object : TextWatcher {
+        private var current = ""
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val input = s.toString()
+            if (input != current) {
+                etAmount.removeTextChangedListener(this)
+
+                val cleanString = input.replace(",", "")
+                if (cleanString.isNotEmpty()) {
+                    try {
+                        val parsed = cleanString.toDouble()
+                        val formatted = moneyFormat.format(parsed)
+
+                        current = formatted
+                        etAmount.setText(formatted)
+                        etAmount.setSelection(formatted.length)
+                    } catch (e: Exception) {
+                        current = ""
+                        etAmount.setText("")
+                    }
+                } else {
+                    current = ""
+                    etAmount.setText("")
+                }
+
+                etAmount.addTextChangedListener(this)
+            }
+        }
+        override fun afterTextChanged(s: Editable?) {}
     }
 
     override fun initViews() {
@@ -164,6 +201,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         // Load Initial Categories & Wallets
         loadCategories("EXPENSE")
         loadWallets()
+
+        // Formatting Amount
+        etAmount.addTextChangedListener(amountWatcher)
 
         // Check for edit mode
         val transactionJson = intent.getStringExtra("TRANSACTION_DATA")
@@ -225,7 +265,8 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         }
 
         btnSave.setOnClickListener {
-            val amount = etAmount.text.toString().toDoubleOrNull() ?: 0.0
+            val amountStr = etAmount.text.toString().replace(",", "")
+            val amount = amountStr.toDoubleOrNull() ?: 0.0
             val note = etNote.text.toString().trim()
             val category = categoryAdapter.getSelectedCategory()
 
