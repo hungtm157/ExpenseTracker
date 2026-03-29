@@ -4,11 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
+import com.example.expensetracker.App
 import com.example.expensetracker.data.models.ErrorResponse
 import com.example.expensetracker.data.models.UpdateNameRequest
 import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.repository.AuthRepository
+import com.example.expensetracker.data.repository.BudgetRepository
+import com.example.expensetracker.data.repository.TransactionRepository
 import com.google.gson.Gson
+import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,10 +29,13 @@ interface ProfileListener {
     fun onNameUpdateError(message: String)
     fun onAvatarUpdated(profile: UserProfileResponse)
     fun onAvatarUpdateError(message: String)
+    fun onStatsLoaded(transactionCount: Int, budgetCount: Int)
 }
 
 class ProfileController(
     private val repository: AuthRepository,
+    private val transactionRepository: TransactionRepository,
+    private val budgetRepository: BudgetRepository,
     private val listener: ProfileListener
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
@@ -45,6 +52,10 @@ class ProfileController(
                 if (response.isSuccessful) {
                     val profile = response.body()?.data
                     if (profile != null) {
+                        // Sync with local favorites
+                        App.instance.preferences.userType = profile.type
+                        App.instance.preferences.userName = profile.fullName
+                        
                         listener.onProfileLoaded(profile)
                     } else {
                         listener.onError("Không lấy được thông tin người dùng")
@@ -73,6 +84,9 @@ class ProfileController(
                 if (response.isSuccessful) {
                     val profile = response.body()?.data
                     if (profile != null) {
+                        // Sync with local favorites
+                        App.instance.preferences.userName = profile.fullName
+                        
                         listener.onNameUpdated(profile)
                     } else {
                         listener.onNameUpdateError("Không nhận được phản hồi từ server")
@@ -100,6 +114,10 @@ class ProfileController(
                 if (response.isSuccessful) {
                     val profile = response.body()?.data
                     if (profile != null) {
+                        // Sync with local favorites (optional, in case avatar URL changed or something)
+                        // but usually it doesn't affect userType. 
+                        // But let's sync everything for consistency if needed.
+                        
                         listener.onAvatarUpdated(profile)
                     } else {
                         listener.onAvatarUpdateError("Không nhận được phản hồi từ server")
@@ -112,6 +130,43 @@ class ProfileController(
                 Log.e(TAG, "Lỗi updateAvatar: ", e)
                 listener.onLoading(false)
                 listener.onAvatarUpdateError("Không thể kết nối đến máy chủ")
+            }
+        }
+    }
+
+    fun fetchProfileStats() {
+        scope.launch {
+            try {
+                // Fetch stats concurrently
+                val transactionsDef = async(Dispatchers.IO) {
+                    transactionRepository.getTransactions(
+                        token = App.instance.preferences.authToken,
+                        limit = 1
+                    )
+                }
+                val budgetsDef = async(Dispatchers.IO) {
+                    budgetRepository.getBudgets()
+                }
+
+                val transactionsResponse = transactionsDef.await()
+                val budgetsResponse = budgetsDef.await()
+
+                var txCount = 0
+                var budgetCount = 0
+
+                if (transactionsResponse.isSuccessful) {
+                    txCount = transactionsResponse.body()?.data?.total ?: 0
+                }
+                
+                if (budgetsResponse.isSuccessful) {
+                    budgetCount = budgetsResponse.body()?.data?.size ?: 0
+                }
+
+                listener.onStatsLoaded(txCount, budgetCount)
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Lỗi fetchProfileStats: ", e)
+                // stats default to 0
             }
         }
     }

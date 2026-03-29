@@ -1,6 +1,8 @@
 package com.example.expensetracker.features.plan
 
 import android.app.DatePickerDialog
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import com.example.expensetracker.R
@@ -14,6 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,6 +60,38 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     private val parseDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 
+    private val decimalFormat = DecimalFormat("#,###", DecimalFormatSymbols(Locale.US))
+
+    private val amountWatcher = object : TextWatcher {
+        private var current = ""
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val input = s.toString()
+            if (input != current) {
+                etAmountLimit.removeTextChangedListener(this)
+
+                val cleanString = input.replace(",", "")
+                if (cleanString.isNotEmpty()) {
+                    try {
+                        val parsed = cleanString.toDouble()
+                        val formatted = decimalFormat.format(parsed)
+
+                        current = formatted
+                        etAmountLimit.setText(formatted)
+                        etAmountLimit.setSelection(formatted.length)
+                    } catch (e: Exception) {
+                        current = ""
+                    }
+                } else {
+                    current = ""
+                }
+
+                etAmountLimit.addTextChangedListener(this)
+            }
+        }
+        override fun afterTextChanged(s: Editable?) {}
+    }
+
     override fun initViews() {
         btnBack = findViewById(R.id.btnBack)
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle)
@@ -94,7 +130,7 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
 
             // Pre-fill form with existing data
             val amountLimit = intent.getDoubleExtra("amount_limit", 0.0)
-            etAmountLimit.setText(amountLimit.toLong().toString())
+            etAmountLimit.setText(decimalFormat.format(amountLimit))
 
             val isAlertEnabled = intent.getBooleanExtra("is_alert_enabled", true)
             switchAlert.isChecked = isAlertEnabled
@@ -149,6 +185,8 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
     override fun initListeners() {
         btnBack.setOnClickListener { finish() }
         btnCancel.setOnClickListener { finish() }
+
+        etAmountLimit.addTextChangedListener(amountWatcher)
 
         tvStartDate.setOnClickListener { showDatePicker(true) }
         tvEndDate.setOnClickListener { showDatePicker(false) }
@@ -317,7 +355,7 @@ class AddBudgetActivity : BaseActivity(R.layout.activity_add_budget), BudgetList
             return
         }
 
-        val amountStr = etAmountLimit.text.toString().trim()
+        val amountStr = etAmountLimit.text.toString().trim().replace(",", "")
         val amount = amountStr.toDoubleOrNull()
         if (amount == null || amount <= 0) {
             Toast.makeText(this, "Vui lòng nhập hạn mức chi tiêu hợp lệ", Toast.LENGTH_SHORT).show()

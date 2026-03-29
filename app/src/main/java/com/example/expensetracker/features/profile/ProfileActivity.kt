@@ -21,6 +21,8 @@ import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.local.AppPreferences
 import com.example.expensetracker.data.models.UserProfileResponse
 import com.example.expensetracker.data.repository.AuthRepository
+import com.example.expensetracker.data.repository.BudgetRepository
+import com.example.expensetracker.data.repository.TransactionRepository
 import com.example.expensetracker.features.auth.login.LoginActivity
 
 class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener {
@@ -42,6 +44,8 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
     private lateinit var layoutPremiumBanner: LinearLayout
     private lateinit var btnUpgradePremium: View
     private lateinit var btnLogout: LinearLayout
+    private lateinit var tvTransactionCount: TextView
+    private lateinit var tvBudgetCount: TextView
     private lateinit var progressBar: ProgressBar
 
     private lateinit var controller: ProfileController
@@ -74,12 +78,17 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         layoutPremiumBanner = findViewById(R.id.layoutPremiumBanner)
         btnUpgradePremium = findViewById(R.id.btnUpgradePremium)
         btnLogout = findViewById(R.id.btnLogout)
+        tvTransactionCount = findViewById(R.id.tvTransactionCount)
+        tvBudgetCount = findViewById(R.id.tvBudgetCount)
         progressBar = findViewById(R.id.progressBar)
 
         prefs = AppPreferences(this)
         val apiService = ApiClient.create(ApiService::class.java)
         val repository = AuthRepository(apiService)
-        controller = ProfileController(repository, this)
+        val transactionRepo = TransactionRepository(apiService)
+        val budgetRepo = BudgetRepository(apiService)
+        
+        controller = ProfileController(repository, transactionRepo, budgetRepo, this)
 
         // Tạm ẩn các components cho đến khi tải xong
         tvFullName.text = "Đang tải..."
@@ -91,6 +100,7 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         super.onResume()
         // Tải profile mỗi khi người dùng xem màn hình này (để cập nhật trạng thái PREMIUM ngay lập tức)
         controller.fetchProfile()
+        controller.fetchProfileStats()
     }
 
     override fun initListeners() {
@@ -225,5 +235,10 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
 
     override fun onAvatarUpdateError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onStatsLoaded(transactionCount: Int, budgetCount: Int) {
+        tvTransactionCount.text = transactionCount.toString()
+        tvBudgetCount.text = budgetCount.toString()
     }
 }

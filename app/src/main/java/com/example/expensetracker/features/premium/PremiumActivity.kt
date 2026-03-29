@@ -14,12 +14,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.expensetracker.R
 import com.example.expensetracker.core.base.BaseActivity
 import com.example.expensetracker.core.network.ApiClient
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.local.AppPreferences
+import com.example.expensetracker.data.models.UserProfileResponse
+import com.example.expensetracker.data.repository.AuthRepository
+import com.example.expensetracker.data.repository.BudgetRepository
+import com.example.expensetracker.data.repository.TransactionRepository
+import com.example.expensetracker.features.profile.ProfileController
+import com.example.expensetracker.features.profile.ProfileListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +37,7 @@ import java.util.Locale
 /**
  * PremiumActivity — Màn hình nâng cấp tài khoản Premium.
  */
-class PremiumActivity : BaseActivity(R.layout.activity_premium) {
+class PremiumActivity : BaseActivity(R.layout.activity_premium), ProfileListener {
 
     companion object {
         const val ACTION_UPGRADE_SUCCESS = "com.example.expensetracker.UPGRADE_SUCCESS"
@@ -43,6 +50,8 @@ class PremiumActivity : BaseActivity(R.layout.activity_premium) {
     private lateinit var ivQrCode: ImageView
     private lateinit var tvTransferContent: TextView
     private lateinit var tvAmount: TextView
+    
+    private lateinit var profileController: ProfileController
 
     private val apiService = ApiClient.create(ApiService::class.java)
     private val scope = CoroutineScope(Dispatchers.Main)
@@ -67,11 +76,24 @@ class PremiumActivity : BaseActivity(R.layout.activity_premium) {
         tvAmount = findViewById(R.id.tvAmount)
 
         prefs = AppPreferences(this)
+        
+        // Setup controller
+        val repository = AuthRepository(apiService)
+        val transactionRepo = TransactionRepository(apiService)
+        val budgetRepo = BudgetRepository(apiService)
+        profileController = ProfileController(repository, transactionRepo, budgetRepo, this)
 
-        // Nếu đã PREMIUM thì thông báo
-        if (prefs.isPremium) {
+        // Nếu đã PREMIUM thì tạm thời khóa button (sẽ check lại khi onProfileLoaded)
+        updateCheckoutButtonState(prefs.isPremium)
+    }
+
+    private fun updateCheckoutButtonState(isPremium: Boolean) {
+        if (isPremium) {
             btnCheckout.text = "Bạn đã là thành viên Premium"
             btnCheckout.isEnabled = false
+        } else {
+            btnCheckout.text = "Nâng cấp ngay"
+            btnCheckout.isEnabled = true
         }
     }
 
@@ -86,11 +108,15 @@ class PremiumActivity : BaseActivity(R.layout.activity_premium) {
     override fun onResume() {
         super.onResume()
         val filter = IntentFilter(ACTION_UPGRADE_SUCCESS)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(upgradeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(upgradeReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            upgradeReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        
+        // Refresh profile to get the latest status
+        profileController.fetchProfile()
     }
 
     override fun onPause() {
@@ -143,6 +169,8 @@ class PremiumActivity : BaseActivity(R.layout.activity_premium) {
     }
 
     private fun showUpgradeSuccessDialog() {
+        // AppPreferences.userType is now updated in ProfileController or by FCM
+        // but let's be safe
         prefs.userType = "PREMIUM"
 
         AlertDialog.Builder(this)
@@ -155,4 +183,25 @@ class PremiumActivity : BaseActivity(R.layout.activity_premium) {
             }
             .show()
     }
+
+    // --- ProfileListener Methods ---
+    override fun onLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    override fun onProfileLoaded(profile: UserProfileResponse) {
+        // Update UI based on latest profile data
+        updateCheckoutButtonState(profile.type == "PREMIUM")
+    }
+
+    override fun onError(message: String) {
+        // Quiet failure, rely on cached state
+        Log.e(TAG, "Lỗi cập nhật profile: $message")
+    }
+
+    override fun onNameUpdated(profile: UserProfileResponse) {}
+    override fun onNameUpdateError(message: String) {}
+    override fun onAvatarUpdated(profile: UserProfileResponse) {}
+    override fun onAvatarUpdateError(message: String) {}
+    override fun onStatsLoaded(transactionCount: Int, budgetCount: Int) {}
 }
