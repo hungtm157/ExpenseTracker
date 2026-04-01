@@ -45,7 +45,7 @@ import android.view.View
 /**
  * AddTransactionActivity — Màn hình thêm giao dịch mới.
  */
-class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction), 
+class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     TransactionListener, CategoryController.CategoryListener {
 
     private lateinit var btnClose: ImageView
@@ -70,7 +70,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private lateinit var categoryAdapter: CategoryGridAdapter
     private lateinit var walletRepository: WalletRepository
     private lateinit var prefs: AppPreferences
-    
+
     private var isExpense = true
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("vi", "VN"))
@@ -95,34 +95,38 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private var loadingDialog: AlertDialog? = null
 
     /** Launcher chụp ảnh camera → gửi scan invoice */
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && cameraImageFile != null) {
-            controller.scanInvoice(cameraImageFile!!)
-        } else {
-            Toast.makeText(this, "Không chụp được ảnh", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /** Launcher xin quyền Camera */
-    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) {
-            openCamera()
-        } else {
-            Toast.makeText(this, "Cần quyền Camera để quét hóa đơn", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /** Launcher chọn ảnh từ thư viện → gửi scan invoice */
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            val file = uriToTempFile(it)
-            if (file != null) {
-                controller.scanInvoice(file)
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success && cameraImageFile != null) {
+                controller.scanInvoice(cameraImageFile!!)
             } else {
-                Toast.makeText(this, "Không thể xử lý ảnh từ thư viện", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Không chụp được ảnh", Toast.LENGTH_SHORT).show()
             }
         }
-    }
+
+    /** Launcher xin quyền Camera */
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                openCamera()
+            } else {
+                Toast.makeText(this, "Cần quyền Camera để quét hóa đơn", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    /** Launcher chọn ảnh từ thư viện → gửi scan invoice */
+    private val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                val file = uriToTempFile(it)
+                if (file != null) {
+                    controller.scanInvoice(file)
+                } else {
+                    Toast.makeText(this, "Không thể xử lý ảnh từ thư viện", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
 
     private val amountWatcher = object : TextWatcher {
         private var current = ""
@@ -153,6 +157,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 etAmount.addTextChangedListener(this)
             }
         }
+
         override fun afterTextChanged(s: Editable?) {}
     }
 
@@ -175,9 +180,9 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         tvSelectedWalletBalance = findViewById(R.id.tvSelectedWalletBalance)
 
         prefs = AppPreferences(this)
-        
+
         val apiService = ApiClient.create(ApiService::class.java)
-        
+
         // Init Transaction Controller
         val repository = TransactionRepository(apiService)
         controller = TransactionController(repository, this)
@@ -215,7 +220,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     private fun setupEditMode() {
         val tx = editingTransaction ?: return
-        
+
         // Cập nhật Mode (Thu/Chi)
         isExpense = !tx.category.isIncome
         updateToggleUI()
@@ -239,14 +244,14 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     override fun initListeners() {
         btnClose.setOnClickListener { finish() }
 
-        btnExpense.setOnClickListener { 
+        btnExpense.setOnClickListener {
             if (!isExpense) {
                 isExpense = true
                 updateToggleUI()
                 loadCategories("EXPENSE")
             }
         }
-        btnIncome.setOnClickListener { 
+        btnIncome.setOnClickListener {
             if (isExpense) {
                 isExpense = false
                 updateToggleUI()
@@ -300,7 +305,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 // UPDATE MODE
                 controller.updateTransaction(
                     id = editingTransaction!!.id,
-                    walletId = selectedWallet?.id ?: 0, 
+                    walletId = selectedWallet?.id ?: 0,
                     categoryId = categoryId,
                     amount = amount,
                     date = dateStr,
@@ -311,7 +316,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                 // CREATE MODE
                 controller.createTransaction(
                     token = prefs.authToken,
-                    walletId = selectedWallet?.id ?: 0, 
+                    walletId = selectedWallet?.id ?: 0,
                     categoryId = categoryId,
                     amount = amount,
                     date = dateStr,
@@ -335,23 +340,14 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
             showPremiumRequiredDialog()
             return
         }
-        
+
         // 2. Hiện lựa chọn nguồn ảnh
-        val options = arrayOf("Chụp ảnh mới", "Chọn từ thư viện")
+        val options = arrayOf("Chọn từ thư viện")
         AlertDialog.Builder(this)
             .setTitle("Quét hóa đơn")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> { // Camera
-                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                            == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            openCamera()
-                        } else {
-                            showCameraPermissionDialog()
-                        }
-                    }
-                    1 -> { // Gallery
+                    0 -> { // Gallery
                         galleryLauncher.launch("image/*")
                     }
                 }
@@ -364,7 +360,12 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
             .setTitle("Tính năng Premium")
             .setMessage("Quét hóa đơn OCR chỉ dành cho tài khoản Premium.\nVui lòng nâng cấp để sử dụng tính năng này.")
             .setPositiveButton("Nâng cấp") { _, _ ->
-                startActivity(Intent(this, com.example.expensetracker.features.premium.PremiumActivity::class.java))
+                startActivity(
+                    Intent(
+                        this,
+                        com.example.expensetracker.features.premium.PremiumActivity::class.java
+                    )
+                )
             }
             .setNegativeButton("Để sau", null)
             .show()
@@ -399,8 +400,10 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private fun uriToTempFile(uri: Uri): File? {
         return try {
             val mimeType = contentResolver.getType(uri)
-            val extension = android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
-            
+            val extension =
+                android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                    ?: "jpg"
+
             val inputStream = contentResolver.openInputStream(uri) ?: return null
             val tempDir = File(externalCacheDir, "temp_images")
             if (!tempDir.exists()) tempDir.mkdirs()
@@ -431,7 +434,11 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@AddTransactionActivity, "Không thể tải danh sách ví", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@AddTransactionActivity,
+                    "Không thể tải danh sách ví",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -440,7 +447,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         selectedWallet = wallet
         tvSelectedWalletName.text = wallet.name
         tvSelectedWalletBalance.text = "${moneyFormat.format(wallet.balance)} ${wallet.currency}"
-        
+
         val iconRes = when (wallet.type) {
             WalletType.CASH -> R.drawable.ic_boxed_cash
             WalletType.BANK_ACCOUNT -> R.drawable.ic_boxed_bank
@@ -546,7 +553,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     override fun onScanInvoiceResult(data: ScanInvoiceData) {
         isFromOcr = true
-        
+
         // Điền số tiền
         etAmount.setText(data.amount.toInt().toString())
 
