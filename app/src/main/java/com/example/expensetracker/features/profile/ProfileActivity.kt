@@ -184,14 +184,14 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         // Account Type Logic
         if (profile.type == "PREMIUM") {
             tvAccountType.text = "Gói Premium"
-            tvAccountType.setTextColor(getColor(R.color.white))
+            tvAccountType.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white))
             layoutAccountType.setBackgroundResource(R.drawable.bg_button_orange) // Reusing simple corner background if possible
             // Ẩn banner nâng cấp
             layoutPremiumBanner.visibility = View.GONE
         } else {
             // Free Tier
             tvAccountType.text = "Miễn phí"
-            tvAccountType.setTextColor(getColor(R.color.text_secondary))
+            tvAccountType.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_secondary))
             // Hiện banner nâng cấp
             layoutPremiumBanner.visibility = View.VISIBLE
         }
