@@ -20,6 +20,9 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.supervisorScope
+import kotlin.coroutines.cancellation.CancellationException
 
 interface ProfileListener {
     fun onLoading(isLoading: Boolean)
@@ -38,7 +41,7 @@ class ProfileController(
     private val budgetRepository: BudgetRepository,
     private val listener: ProfileListener
 ) {
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val TAG = "ProfileController"
 
     fun fetchProfile() {
@@ -137,36 +140,44 @@ class ProfileController(
     fun fetchProfileStats() {
         scope.launch {
             try {
-                // Fetch stats concurrently
-                val transactionsDef = async(Dispatchers.IO) {
-                    transactionRepository.getTransactions(
-                        token = App.instance.preferences.authToken,
-                        limit = 1
-                    )
+                // Sử dụng supervisorScope để các yêu cầu độc lập với nhau
+                supervisorScope {
+                    val transactionsDef = async(Dispatchers.IO) {
+                        transactionRepository.getTransactions(
+                            token = App.instance.preferences.authToken,
+                            limit = 1
+                        )
+                    }
+                    val budgetsDef = async(Dispatchers.IO) {
+                        budgetRepository.getBudgets()
+                    }
+
+                    try {
+                        val transactionsResponse = transactionsDef.await()
+                        val budgetsResponse = budgetsDef.await()
+
+                        var txCount = 0
+                        var budgetCount = 0
+
+                        if (transactionsResponse.isSuccessful) {
+                            txCount = transactionsResponse.body()?.data?.total ?: 0
+                        }
+                        
+                        if (budgetsResponse.isSuccessful) {
+                            budgetCount = budgetsResponse.body()?.data?.size ?: 0
+                        }
+
+                        listener.onStatsLoaded(txCount, budgetCount)
+                    } catch (e: Exception) {
+                        if (e is CancellationException) throw e
+                        Log.e(TAG, "Lỗi khi đợi kết quả fetchProfileStats: ", e)
+                        listener.onStatsLoaded(0, 0)
+                    }
                 }
-                val budgetsDef = async(Dispatchers.IO) {
-                    budgetRepository.getBudgets()
-                }
-
-                val transactionsResponse = transactionsDef.await()
-                val budgetsResponse = budgetsDef.await()
-
-                var txCount = 0
-                var budgetCount = 0
-
-                if (transactionsResponse.isSuccessful) {
-                    txCount = transactionsResponse.body()?.data?.total ?: 0
-                }
-                
-                if (budgetsResponse.isSuccessful) {
-                    budgetCount = budgetsResponse.body()?.data?.size ?: 0
-                }
-
-                listener.onStatsLoaded(txCount, budgetCount)
-
             } catch (e: Exception) {
+                if (e is CancellationException) return@launch
                 Log.e(TAG, "Lỗi fetchProfileStats: ", e)
-                // stats default to 0
+                listener.onStatsLoaded(0, 0)
             }
         }
     }

@@ -97,27 +97,33 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
 
         lifecycleScope.launch {
             try {
+                // Kiểm tra fragment vẫn còn attached
+                val currentContext = context ?: return@launch
+                
                 // Fetch statistics
                 val statsResult = withContext(Dispatchers.IO) { statsRepo.getStatisticsGeneral() }
                 if (statsResult.isSuccessful) {
                     val data = statsResult.body()?.data
-                    if (data != null) {
+                    if (data != null && isAdded) {
                         tvBalance.text = numberFormat.format(data.totalBalance)
                         tvTotalIncome.text = numberFormat.format(data.totalIncome)
                         tvTotalExpense.text = numberFormat.format(data.totalExpense)
                     }
                 }
                 
+                if (!isAdded) return@launch
+
                 // Fetch transactions count
-                val token = AppPreferences(requireContext()).authToken ?: ""
+                val token = AppPreferences(currentContext).authToken ?: ""
                 val transResult = withContext(Dispatchers.IO) { 
                     transRepo.getTransactions(token = token, page = 1, limit = 1) 
                 }
-                if (transResult.isSuccessful) {
+                if (transResult.isSuccessful && isAdded) {
                     val total = transResult.body()?.data?.total ?: 0
                     tvTransactionCount.text = total.toString()
                 }
             } catch (e: Exception) {
+                if (e is kotlin.coroutines.cancellation.CancellationException) return@launch
                 e.printStackTrace()
             }
         }
