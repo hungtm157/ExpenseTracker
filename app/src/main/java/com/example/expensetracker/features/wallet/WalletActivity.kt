@@ -162,9 +162,19 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
     }
 
     private fun showDeleteConfirmation(wallet: WalletModel) {
+        controller.checkTransactionCountBeforeDelete(wallet)
+    }
+
+    private fun performDeleteWithTransactionCount(wallet: WalletModel, count: Int) {
+        val message = if (count > 0) {
+            "Ví này đang có $count giao dịch, xóa ví sẽ xóa vĩnh viễn $count giao dịch này. Tiếp tục?"
+        } else {
+            "Bạn có chắc chắn muốn xóa ví '${wallet.name}'?"
+        }
+
         AlertDialog.Builder(this)
             .setTitle("Xóa ví")
-            .setMessage("Bạn có chắc chắn muốn xóa ví '${wallet.name}'?")
+            .setMessage(message)
             .setPositiveButton("Xóa") { _, _ -> controller.deleteWallet(wallet.id) }
             .setNegativeButton("Hủy", null)
             .show()
@@ -197,6 +207,10 @@ class WalletActivity : BaseActivity(R.layout.activity_wallet), WalletListener {
     override fun onWalletDeleted(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         controller.loadWallets()
+    }
+
+    override fun onTransactionCountReceived(count: Int, wallet: WalletModel) {
+        performDeleteWithTransactionCount(wallet, count)
     }
 
     override fun onLoading(isLoading: Boolean) {

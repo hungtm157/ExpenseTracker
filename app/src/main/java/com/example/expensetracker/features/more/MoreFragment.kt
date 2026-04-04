@@ -82,7 +82,10 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ProfileListener {
 
         tvUserName.text = "Đang tải..."
         tvUserEmail.text = "..."
+    }
 
+    override fun onResume() {
+        super.onResume()
         controller.fetchProfile()
         loadStatistics()
     }

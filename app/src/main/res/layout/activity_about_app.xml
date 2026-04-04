@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:gravity="center"
-                android:text="© 2024 Expense Tracker Team\nAll Rights Reserved"
+                android:text="© 2026 Expense Tracker Team\nAll Rights Reserved"
                 android:textColor="@color/text_hint"
                 android:textSize="12sp" />
 

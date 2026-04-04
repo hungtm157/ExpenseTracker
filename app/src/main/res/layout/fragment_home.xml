@@ -93,18 +93,22 @@
         </com.google.android.material.tabs.TabLayout>
 
         <!-- ================= TAB CONTENT CONTAINER ================= -->
+
+        <!-- Nút Ghi giao dịch -->
         <FrameLayout
             android:id="@+id/frameContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tabLayout">
+            app:layout_constraintTop_toBottomOf="@id/tabLayout"
+            tools:layout_editor_absoluteX="0dp">
 
             <include layout="@layout/layout_home_expense" />
+
             <include layout="@layout/layout_home_income" />
+
             <include layout="@layout/layout_home_asset" />
         </FrameLayout>
 
-        <!-- Nút Ghi giao dịch -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnAddTransactionCenter"
             android:layout_width="match_parent"

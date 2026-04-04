@@ -8,6 +8,10 @@ data class RegisterRequest(
     @SerializedName("password") val password: String
 )
 
+data class ResendOtpRequest(
+    @SerializedName("email") val email: String
+)
+
 data class VerifyOtpRequest(
     @SerializedName("fullName") val fullName: String,
     @SerializedName("email") val email: String,

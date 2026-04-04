@@ -1,6 +1,7 @@
 package com.example.expensetracker.data.repository
 
 import com.example.expensetracker.core.network.ApiService
+import com.example.expensetracker.features.transaction.TransactionListResponse
 import com.example.expensetracker.features.wallet.*
 import retrofit2.Response
 
@@ -33,5 +34,10 @@ class WalletRepository(private val apiService: ApiService) {
     /** Xóa ví */
     suspend fun deleteWallet(id: Int): Response<WalletDeleteResponse> {
         return apiService.deleteWallet(id)
+    }
+
+    /** Lấy số lượng giao dịch của ví */
+    suspend fun getTransactionCount(walletId: Int): Response<TransactionListResponse> {
+        return apiService.getTransactions(walletId = walletId, limit = 1)
     }
 }

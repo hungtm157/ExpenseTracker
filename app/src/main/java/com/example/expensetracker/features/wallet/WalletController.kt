@@ -127,6 +127,30 @@ class WalletController(
             }
         }
     }
+    /** Kiểm tra số lượng giao dịch trước khi xóa */
+    fun checkTransactionCountBeforeDelete(wallet: WalletModel) {
+        Log.d(TAG, "checkTransactionCountBeforeDelete: Đang kiểm tra giao dịch của ví ID ${wallet.id}")
+        listener.onLoading(true)
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    repository.getTransactionCount(wallet.id)
+                }
+                listener.onLoading(false)
+                if (response.isSuccessful) {
+                    val total = response.body()?.data?.total ?: 0
+                    listener.onTransactionCountReceived(total, wallet)
+                } else {
+                    val errorMsg = parseErrorMessage(response.errorBody())
+                    listener.onError(errorMsg)
+                }
+            } catch (e: Exception) {
+                listener.onLoading(false)
+                listener.onError("Không thể kết nối đến máy chủ")
+            }
+        }
+    }
+
     /**
      * Helper trích xuất thông báo lỗi từ JSON body của API.
      */

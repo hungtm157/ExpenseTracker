@@ -8,6 +8,7 @@ import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.data.models.CategoryItem
 import com.example.expensetracker.data.models.CategoryListResponse
 import com.example.expensetracker.data.models.ErrorResponse
+import com.example.expensetracker.features.transaction.TransactionListResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -86,6 +87,11 @@ class CategoryRepository {
         return api.deleteCategory(
             id = id
         )
+    }
+
+    /** Lấy số lượng giao dịch của danh mục */
+    suspend fun getTransactionCount(categoryId: Int): Response<TransactionListResponse> {
+        return api.getTransactions(categoryId = categoryId, limit = 1)
     }
 
     /**

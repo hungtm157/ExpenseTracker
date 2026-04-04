@@ -25,6 +25,10 @@ class AuthRepository(private val apiService: ApiService) {
         return apiService.updateAvatar(avatarPart ?: throw Exception("Không thể xử lý file ảnh"))
     }
 
+    suspend fun changePassword(request: com.example.expensetracker.data.models.ChangePasswordRequest): Response<com.example.expensetracker.data.models.ForgotPasswordResponse> {
+        return apiService.changePassword(request)
+    }
+
     private fun prepareAvatarPart(context: Context, uri: Uri?): MultipartBody.Part? {
         if (uri == null) return null
         return try {

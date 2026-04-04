@@ -132,7 +132,7 @@ class ProfileActivity : BaseActivity(R.layout.activity_profile), ProfileListener
         }
 
         btnChangePassword.setOnClickListener {
-            Toast.makeText(this, "Chuyển sang màn hình Đổi mật khẩu", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
 
         btnUpgradePremium.setOnClickListener {

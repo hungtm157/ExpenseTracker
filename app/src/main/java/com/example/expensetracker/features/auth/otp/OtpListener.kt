@@ -7,4 +7,7 @@ interface OtpListener {
     fun onVerifySuccess()
     fun onVerifyFailure(errorMessage: String)
     fun onVerifyLoading(isLoading: Boolean)
+
+    fun onResendOtpSuccess()
+    fun onResendOtpFailure(errorMessage: String)
 }
