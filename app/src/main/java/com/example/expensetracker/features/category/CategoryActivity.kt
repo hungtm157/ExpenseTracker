@@ -141,23 +141,34 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
                     return
                 }
 
-                AlertDialog.Builder(this@CategoryActivity)
-                    .setTitle("Xác nhận xóa")
-                    .setMessage("Bạn có chắc chắn muốn xóa danh mục \"${item.name}\"?")
-                    .setPositiveButton("Xóa") { _, _ ->
-                        controller.deleteCategory(prefs.authToken, item.id)
-                    }
-                    .setNegativeButton("Hủy") { dialog, _ ->
-                        adapter.notifyItemChanged(position)
-                        dialog.dismiss()
-                    }
-                    .setOnCancelListener {
-                        adapter.notifyItemChanged(position)
-                    }
-                    .show()
+                controller.checkTransactionCountBeforeDelete(item)
             }
         }
         ItemTouchHelper(swipeHandler).attachToRecyclerView(recyclerCategories)
+    }
+
+    private fun showCategoryDeleteConfirmation(category: CategoryItem, count: Int) {
+        val message = if (count > 0) {
+            "Danh mục này đang có $count giao dịch, xóa danh mục sẽ xóa vĩnh viễn $count giao dịch này. Tiếp tục?"
+        } else {
+            "Bạn có chắc chắn muốn xóa danh mục \"${category.name}\"?"
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Xác nhận xóa")
+            .setMessage(message)
+            .setPositiveButton("Xóa") { _, _ ->
+                controller.deleteCategory(prefs.authToken, category.id)
+            }
+            .setNegativeButton("Hủy") { dialog, _ ->
+                // Reset lại Swipe
+                loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+                dialog.dismiss()
+            }
+            .setOnCancelListener {
+                loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+            }
+            .show()
     }
 
     /**
@@ -259,6 +270,10 @@ class CategoryActivity : BaseActivity(R.layout.activity_category),
     override fun onCategoryDeleted(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         loadCategories(if (isExpenseTab) "EXPENSE" else "INCOME")
+    }
+
+    override fun onTransactionCountReceived(count: Int, category: CategoryItem) {
+        showCategoryDeleteConfirmation(category, count)
     }
 
     override fun onLoading(isLoading: Boolean) {

@@ -2,6 +2,7 @@ package com.example.expensetracker.core.network
 
 import com.example.expensetracker.data.models.CategoryListResponse
 import com.example.expensetracker.data.models.CategoryItem
+import com.example.expensetracker.data.models.ChangePasswordRequest
 import com.example.expensetracker.data.models.ErrorResponse
 import com.example.expensetracker.data.models.ForgotPasswordRequest
 import com.example.expensetracker.data.models.ForgotPasswordResponse
@@ -51,6 +52,9 @@ interface ApiService {
     @POST("api/v1/auth/register/verify-otp")
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): Response<VerifyOtpResponse>
 
+    @POST("api/v1/auth/register/resend-otp")
+    suspend fun resendOtp(@Body request: com.example.expensetracker.data.models.ResendOtpRequest): Response<RegisterResponse>
+
     @POST("api/v1/auth/forgot-password/send-otp")
     suspend fun forgotPasswordSendOtp(@Body request: ForgotPasswordRequest): Response<ForgotPasswordResponse>
 
@@ -77,6 +81,9 @@ interface ApiService {
 
     @PATCH("api/v1/user/update-fcm-token")
     suspend fun updateFcmToken(@Body body: Map<String, String>): Response<Void>
+
+    @PATCH("api/v1/user/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ForgotPasswordResponse>
 
     // ─── Categories ──────────────────────────────────────────────────────────
 

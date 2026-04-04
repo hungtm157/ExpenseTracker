@@ -36,6 +36,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     private lateinit var etOtp5: EditText
     private lateinit var etOtp6: EditText
     private lateinit var tvCountdown: TextView
+    private lateinit var llCountdown: View
     private lateinit var progressBar: ProgressBar
     private lateinit var btnVerify: Button
     private lateinit var tvResendOtp: TextView
@@ -61,6 +62,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
         etOtp5 = findViewById(R.id.etOtp5)
         etOtp6 = findViewById(R.id.etOtp6)
         tvCountdown = findViewById(R.id.tvCountdown)
+        llCountdown = findViewById(R.id.llCountdown)
         progressBar = findViewById(R.id.progressBar)
         btnVerify = findViewById(R.id.btnVerify)
         tvResendOtp = findViewById(R.id.tvResendOtp)
@@ -81,7 +83,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
         }
 
         tvResendOtp.setOnClickListener {
-            Toast.makeText(this, "Vui lòng liên hệ hỗ trợ qua email", Toast.LENGTH_SHORT).show()
+            controller.resendOtp(email)
         }
     }
 
@@ -91,6 +93,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
 
     /** Đếm ngược 60 giây */
     private fun startCountdown() {
+        llCountdown.visibility = View.VISIBLE
         countDownTimer?.cancel()
         countDownTimer = object : CountDownTimer(60_000, 1_000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -100,6 +103,7 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
 
             override fun onFinish() {
                 tvCountdown.text = "0:00"
+                llCountdown.visibility = View.GONE
             }
         }.start()
     }
@@ -146,5 +150,15 @@ class OtpActivity : BaseActivity(R.layout.activity_otp), OtpListener {
     override fun onVerifyLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnVerify.isEnabled = !isLoading
+        tvResendOtp.isEnabled = !isLoading
+    }
+
+    override fun onResendOtpSuccess() {
+        Toast.makeText(this, "Mã OTP mới đã được gửi!", Toast.LENGTH_SHORT).show()
+        startCountdown()
+    }
+
+    override fun onResendOtpFailure(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 }

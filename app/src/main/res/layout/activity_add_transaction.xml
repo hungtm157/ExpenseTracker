@@ -262,30 +262,6 @@
                             android:text="Ghi chú"
                             android:textColor="#757575"
                             android:textSize="13sp" />
-
-                        <LinearLayout
-                            android:id="@+id/btnAiSuggest"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:src="@drawable/ic_statistics"
-                                app:tint="#00BC7D" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:text="AI gợi ý"
-                                android:textColor="#00BC7D"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
                     </RelativeLayout>
 
                     <EditText

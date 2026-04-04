@@ -24,7 +24,9 @@ import com.example.expensetracker.data.models.ScanInvoiceData
 import com.example.expensetracker.data.repository.TransactionRepository
 import com.example.expensetracker.data.repository.WalletRepository
 import com.example.expensetracker.features.category.CategoryController
+import com.example.expensetracker.features.wallet.WalletActivity
 import com.example.expensetracker.features.wallet.WalletModel
+import com.example.expensetracker.features.wallet.WalletStatus
 import com.example.expensetracker.features.wallet.WalletType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CoroutineScope
@@ -203,9 +205,8 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         rvCategories.layoutManager = GridLayoutManager(this, 4)
         rvCategories.adapter = categoryAdapter
 
-        // Load Initial Categories & Wallets
+        // Load Initial Categories
         loadCategories("EXPENSE")
-        loadWallets()
 
         // Formatting Amount
         etAmount.addTextChangedListener(amountWatcher)
@@ -241,6 +242,11 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         btnSave.text = "Lưu thay đổi"
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadWallets()
+    }
+
     override fun initListeners() {
         btnClose.setOnClickListener { finish() }
 
@@ -265,7 +271,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
             if (walletsList.isNotEmpty()) {
                 showWalletSelectionBottomSheet()
             } else {
-                Toast.makeText(this, "Đang tải danh sách ví...", Toast.LENGTH_SHORT).show()
+                showNoWalletDialog()
             }
         }
 
@@ -426,11 +432,23 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     walletRepository.getWallets()
                 }
                 if (response.isSuccessful) {
-                    val wallets = response.body()?.data?.items ?: emptyList()
+                    val wallets = (response.body()?.data?.items ?: emptyList()).filter { it.status == WalletStatus.ACTIVATE }
                     walletsList.clear()
                     walletsList.addAll(wallets)
                     if (walletsList.isNotEmpty()) {
-                        updateSelectedWallet(walletsList[0])
+                        // Nếu chưa chọn ví, hoặc ví đang chọn không còn trong list mới -> chọn cái đầu
+                        val currentSelectedId = selectedWallet?.id ?: -1
+                        val stillExists = walletsList.find { it.id == currentSelectedId }
+                        
+                        if (stillExists != null) {
+                            updateSelectedWallet(stillExists)
+                        } else {
+                            updateSelectedWallet(walletsList[0])
+                        }
+                    } else {
+                        tvSelectedWalletName.text = "Bạn hiện chưa có ví nào"
+                        tvSelectedWalletBalance.text = ""
+                        ivSelectedWalletIcon.setImageResource(R.drawable.ic_boxed_cash)
                     }
                 }
             } catch (e: Exception) {
@@ -533,6 +551,8 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     override fun onCategoryUpdated(item: CategoryItem) {}
     override fun onCategoryDeleted(message: String) {}
 
+    override fun onTransactionCountReceived(count: Int, category: CategoryItem) {}
+
     // ─── TransactionListener ────────────────────────────────────────────────
 
     override fun onTransactionCreated(transaction: TransactionModel) {
@@ -615,5 +635,17 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
     override fun onError(message: String) {
         Toast.makeText(this, "Lỗi: $message", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showNoWalletDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Chưa có ví")
+            .setMessage("Hiện tại bạn chưa có ví nào. Bạn có muốn tạo ví ngay không?")
+            .setPositiveButton("Tạo ví") { _, _ ->
+                val intent = Intent(this, WalletActivity::class.java)
+                startActivity(intent)
+            }
+            .setNegativeButton("Bỏ qua", null)
+            .show()
     }
 }

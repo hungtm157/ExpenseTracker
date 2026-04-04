@@ -8,6 +8,7 @@ interface WalletListener {
     fun onWalletCreated(wallet: WalletModel)
     fun onWalletUpdated(wallet: WalletModel)
     fun onWalletDeleted(message: String)
+    fun onTransactionCountReceived(count: Int, wallet: WalletModel)
     fun onLoading(isLoading: Boolean)
     fun onError(message: String)
 }

@@ -78,6 +78,7 @@
 
         <!-- Profile -->
         <activity android:name=".features.profile.ProfileActivity" />
+        <activity android:name=".features.profile.ChangePasswordActivity" />
 
         <!-- More / About & Privacy -->
         <activity android:name=".features.more.AboutAppActivity" />
