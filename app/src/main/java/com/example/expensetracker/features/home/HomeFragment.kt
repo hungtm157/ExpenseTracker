@@ -83,6 +83,26 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             )
         }
 
+        val btnViewAllIncomeTransactions = view.findViewById<TextView>(R.id.btnViewAllIncomeTransactions)
+        btnViewAllIncomeTransactions.setOnClickListener {
+            startActivity(
+                android.content.Intent(
+                    requireContext(),
+                    TransactionHistoryActivity::class.java
+                )
+            )
+        }
+
+        val btnViewAllAssetTransactions = view.findViewById<TextView>(R.id.btnViewAllAssetTransactions)
+        btnViewAllAssetTransactions.setOnClickListener {
+            startActivity(
+                android.content.Intent(
+                    requireContext(),
+                    TransactionHistoryActivity::class.java
+                )
+            )
+        }
+
         val btnAddTransactionCenter = view.findViewById<Button>(R.id.btnAddTransactionCenter)
         btnAddTransactionCenter.setOnClickListener {
             startActivity(

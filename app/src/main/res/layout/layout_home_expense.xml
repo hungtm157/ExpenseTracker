@@ -303,7 +303,7 @@
             android:layout_height="56dp"
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="20dp"
-            android:text="Xem tất cả"
+            android:text="Xem tất cả giao dịch"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
