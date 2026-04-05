@@ -33,38 +33,58 @@ class App : Application() {
         // Khởi tạo AdMob
         AdManager.init(this)
         
-        // Kiểm tra và cập nhật FCM token nếu cần
-        checkAndUpdateFcmToken()
+        // Kiểm tra và đồng bộ FCM token ngay khi khởi động
+        syncFcmToken()
     }
 
     /**
-     * Khi app khởi động, nếu đã đăng nhập (có accessToken),
-     * kiểm tra FCM token hiện tại có thay đổi so với token đã lưu không.
-     * Nếu thay đổi → gửi token mới lên server.
+     * Đồng bộ FCM token lên server.
+     * @param forcedToken Nếu truyền vào (ví dụ từ onNewToken), sẽ dùng token này. 
+     * Nếu không, sẽ tự lấy từ FirebaseMessaging.
      */
-    private fun checkAndUpdateFcmToken() {
+    fun syncFcmToken(forcedToken: String? = null) {
         val prefs = preferences
-        if (prefs.authToken.isEmpty()) return  // Chưa đăng nhập → bỏ qua
+        if (prefs.authToken.isEmpty()) {
+            // Nếu chưa đăng nhập, không làm gì cả. 
+            // Ta sẽ đồng bộ sau khi người dùng đăng nhập thành công.
+            return
+        }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { currentToken ->
-            val savedToken = prefs.fcmToken
-            if (currentToken != savedToken) {
-                Log.d(TAG, "FCM token thay đổi, cập nhật lên server")
-                prefs.fcmToken = currentToken
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        val apiService = ApiClient.create(ApiService::class.java)
-                        apiService.updateFcmToken(mapOf("fcmToken" to currentToken))
-                        Log.d(TAG, "FCM token đã cập nhật lên server thành công")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Lỗi cập nhật FCM token lên server", e)
-                    }
+        if (forcedToken != null) {
+            sendTokenToServer(forcedToken)
+        } else {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { currentToken ->
+                val savedToken = prefs.fcmToken
+                if (currentToken != savedToken) {
+                    Log.d(TAG, "FCM token thay đổi hoặc chưa đồng bộ, tiến hành gửi lên server")
+                    sendTokenToServer(currentToken)
+                } else {
+                    Log.d(TAG, "FCM token đã được đồng bộ trước đó, bỏ qua")
                 }
-            } else {
-                Log.d(TAG, "FCM token không thay đổi, bỏ qua")
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Lỗi khi lấy FCM token từ Firebase", e)
             }
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Lỗi lấy FCM token", e)
+        }
+    }
+
+    /**
+     * Gửi token lên server và CHỈ CẬP NHẬT prefs khi thành công.
+     */
+    private fun sendTokenToServer(token: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiService = ApiClient.create(ApiService::class.java)
+                val response = apiService.updateFcmToken(mapOf("fcmToken" to token))
+                
+                if (response.isSuccessful) {
+                    preferences.fcmToken = token
+                    Log.d(TAG, "Đã đồng bộ FCM token lên server thành công")
+                } else {
+                    Log.e(TAG, "Server từ chối cập nhật FCM token: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Lỗi kết nối khi gửi FCM token lên server", e)
+            }
         }
     }
 

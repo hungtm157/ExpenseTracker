@@ -155,6 +155,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         setupTabs()
         setupWelcomeMessage()
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadStatistics()
     }
 

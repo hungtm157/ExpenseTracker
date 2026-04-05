@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.example.expensetracker.core.utils.ImageUtils
 import java.io.File
 
 /**
@@ -125,16 +126,21 @@ class TransactionController(
     }
 
     /** Quét hóa đơn — API mới /scan-invoice, chỉ cần ảnh */
-    fun scanInvoice(imageFile: File) {
+    fun scanInvoice(context: android.content.Context, imageFile: File) {
         Log.d(TAG, "scanInvoice: Bắt đầu quét hóa đơn...")
         listener.onLoading(true)
 
-        val imagePart = MultipartBody.Part.createFormData(
-            "image", imageFile.name, imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
-        )
-
         scope.launch {
             try {
+                // Nén ảnh trước khi gửi
+                val compressedFile = withContext(Dispatchers.IO) {
+                    ImageUtils.compressImage(context, imageFile)
+                }
+
+                val imagePart = MultipartBody.Part.createFormData(
+                    "image", compressedFile.name, compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                )
+
                 val response = withContext(Dispatchers.IO) {
                     repository.scanInvoice(imagePart)
                 }

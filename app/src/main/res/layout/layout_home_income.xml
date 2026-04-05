@@ -36,6 +36,7 @@
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
+                            android:visibility="invisible"
                             android:src="@drawable/ic_back"
                             android:rotation="180"
                             app:tint="@color/text_hint" />
