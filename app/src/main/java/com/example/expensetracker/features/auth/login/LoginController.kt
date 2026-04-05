@@ -53,8 +53,8 @@ class LoginController(private val listener: LoginListener) {
                             prefs.userId = user.id.toLong()
                             prefs.userType = user.type
 
-                            // Lấy FCM token và gửi lên server
-                            fetchAndSendFcmToken()
+                            // Đồng bộ FCM token lên server
+                            App.instance.syncFcmToken()
 
                             listener.onLoginSuccess()
                         } else {
@@ -72,25 +72,6 @@ class LoginController(private val listener: LoginListener) {
         }
     }
 
-    /** Lấy FCM token hiện tại và gửi lên server */
-    private fun fetchAndSendFcmToken() {
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-            Log.d(TAG, "FCM token: $token")
-            prefs.fcmToken = token
-            scope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        apiService.updateFcmToken(mapOf("fcmToken" to token))
-                    }
-                    Log.d(TAG, "FCM token đã gửi lên server thành công")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Lỗi gửi FCM token lên server", e)
-                }
-            }
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Lỗi lấy FCM token", e)
-        }
-    }
 
     private fun validateInput(email: String, password: String): Boolean {
         if (email.isBlank()) {

@@ -130,8 +130,8 @@ class GoogleSignInHelper(private val activity: Activity, private val listener: G
                         prefs.userId = user.id.toLong()
                         prefs.userType = user.type
 
-                        // Gửi FCM token lên server
-                        fetchAndSendFcmToken()
+                        // Đồng bộ FCM token lên server
+                        App.instance.syncFcmToken()
 
                         listener.onGoogleSignInLoading(false)
                         listener.onGoogleSignInSuccess()
@@ -155,20 +155,4 @@ class GoogleSignInHelper(private val activity: Activity, private val listener: G
         }
     }
 
-    /** Lấy FCM token và gửi lên server (giống LoginController) */
-    private fun fetchAndSendFcmToken() {
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-            prefs.fcmToken = token
-            scope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        apiService.updateFcmToken(mapOf("fcmToken" to token))
-                    }
-                    Log.d(TAG, "FCM token đã gửi lên server")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Lỗi gửi FCM token", e)
-                }
-            }
-        }
-    }
 }

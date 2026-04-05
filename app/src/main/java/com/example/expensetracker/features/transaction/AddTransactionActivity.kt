@@ -100,7 +100,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success && cameraImageFile != null) {
-                controller.scanInvoice(cameraImageFile!!)
+                controller.scanInvoice(this, cameraImageFile!!)
             } else {
                 Toast.makeText(this, "Không chụp được ảnh", Toast.LENGTH_SHORT).show()
             }
@@ -122,7 +122,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
             uri?.let {
                 val file = uriToTempFile(it)
                 if (file != null) {
-                    controller.scanInvoice(file)
+                    controller.scanInvoice(this, file)
                 } else {
                     Toast.makeText(this, "Không thể xử lý ảnh từ thư viện", Toast.LENGTH_SHORT)
                         .show()

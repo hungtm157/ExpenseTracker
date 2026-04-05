@@ -40,23 +40,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      */
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "New FCM token: $token")
-
-        val prefs = App.instance.preferences
-        prefs.fcmToken = token
-
-        // Nếu đã đăng nhập → gửi token mới lên server
-        if (prefs.authToken.isNotEmpty()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val apiService = ApiClient.create(ApiService::class.java)
-                    apiService.updateFcmToken(mapOf("fcmToken" to token))
-                    Log.d(TAG, "FCM token đã gửi lên server thành công (onNewToken)")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Lỗi gửi FCM token lên server", e)
-                }
-            }
-        }
+        Log.d(TAG, "New FCM token received: $token")
+        
+        // Gọi hàm đồng bộ tập trung trong App
+        App.instance.syncFcmToken(token)
     }
 
     /**
