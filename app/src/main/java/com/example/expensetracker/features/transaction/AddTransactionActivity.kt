@@ -60,6 +60,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
     private lateinit var tvDate: TextView
     private lateinit var btnSave: Button
     private lateinit var btnOcr: Button
+    private lateinit var tvTitle: TextView
 
     // Wallet Views
     private lateinit var btnWalletSelector: View
@@ -174,6 +175,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
         tvDate = findViewById(R.id.tvDate)
         btnSave = findViewById(R.id.btnSave)
         btnOcr = findViewById(R.id.btnOcr)
+        tvTitle = findViewById(R.id.tvTitle)
 
         // Wallet Views
         btnWalletSelector = findViewById(R.id.btnWalletSelector)
@@ -240,6 +242,7 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
 
         // Đổi TEXT btn
         btnSave.text = "Lưu thay đổi"
+        tvTitle.text = "Sửa giao dịch"
     }
 
     override fun onResume() {

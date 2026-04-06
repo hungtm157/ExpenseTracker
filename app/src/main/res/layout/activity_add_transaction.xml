@@ -66,12 +66,13 @@
             android:textColor="@color/white" />
     </LinearLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:clipToPadding="false"
         android:paddingBottom="40dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toggleContainer">
 
@@ -79,7 +80,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp">
+            android:paddingHorizontal="20dp"
+            android:focusableInTouchMode="true"
+            android:descendantFocusability="beforeDescendants">
 
             <!-- OCR Button -->
             <androidx.appcompat.widget.AppCompatButton
@@ -232,6 +235,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false"
                         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                         app:spanCount="4"
                         tools:listitem="@layout/item_category_grid" />
@@ -325,6 +329,6 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
