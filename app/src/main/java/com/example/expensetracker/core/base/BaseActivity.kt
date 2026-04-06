@@ -12,6 +12,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.example.expensetracker.R
 
 /**
@@ -19,6 +21,13 @@ import com.example.expensetracker.R
  * Xử lý các tác vụ chung: gắn layout, edge-to-edge, v.v.
  */
 abstract class BaseActivity(@LayoutRes private val layoutResId: Int) : AppCompatActivity() {
+
+    /**
+     * Cờ cho phép tự động xử lý khoảng trống dưới cùng (thanh điều hướng).
+     * Mặc định là true. Các màn hình như HomeActivity có thể override thành false
+     * để tự xử lý edge-to-edge cho BottomAppBar.
+     */
+    protected open val handleBottomInsets: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -66,18 +75,20 @@ abstract class BaseActivity(@LayoutRes private val layoutResId: Int) : AppCompat
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             
             // 1. Cập nhật chiều cao miếng gradient
-            statusBarBg.layoutParams = (statusBarBg.layoutParams as FrameLayout.LayoutParams).apply {
+            statusBarBg.updateLayoutParams<FrameLayout.LayoutParams> {
                 height = systemBars.top
             }
-            
+
             // 2. Padding cho các View khác (nội dung ứng dụng) để không bị đè bởi Notch
-            // Chúng ta không pad rootContentView vì nó sẽ đẩy cả miếng gradient xuống.
-            // Thay vào đó, ta pad các "con" khác của nó.
             for (i in 0 until rootContentView.childCount) {
                 val child = rootContentView.getChildAt(i)
                 if (child != statusBarBg) {
-                    // Áp dụng padding hệ thống để tránh Notch/Nav bar
-                    child.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                    child.updatePadding(
+                        left = systemBars.left,
+                        top = systemBars.top,
+                        right = systemBars.right,
+                        bottom = if (handleBottomInsets) systemBars.bottom else 0
+                    )
                 }
             }
             

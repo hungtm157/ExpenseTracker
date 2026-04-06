@@ -22,7 +22,6 @@
         android:layout_height="70dp"
         android:layout_gravity="bottom"
         android:backgroundTint="@color/white"
-        android:fitsSystemWindows="true"
         app:fabAlignmentMode="center"
         app:fabCradleMargin="10dp"
         app:fabCradleRoundedCornerRadius="30dp"
