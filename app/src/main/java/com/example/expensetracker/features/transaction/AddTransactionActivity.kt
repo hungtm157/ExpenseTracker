@@ -440,7 +440,10 @@ class AddTransactionActivity : BaseActivity(R.layout.activity_add_transaction),
                     walletsList.addAll(wallets)
                     if (walletsList.isNotEmpty()) {
                         // Nếu chưa chọn ví, hoặc ví đang chọn không còn trong list mới -> chọn cái đầu
-                        val currentSelectedId = selectedWallet?.id ?: -1
+                        var currentSelectedId = selectedWallet?.id ?: -1
+                        if (currentSelectedId == -1 && editingTransaction != null) {
+                            currentSelectedId = editingTransaction!!.walletId
+                        }
                         val stillExists = walletsList.find { it.id == currentSelectedId }
                         
                         if (stillExists != null) {

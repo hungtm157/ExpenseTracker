@@ -1,5 +1,6 @@
 package com.example.expensetracker.data.repository
 
+import android.util.Log
 import com.example.expensetracker.core.network.ApiService
 import com.example.expensetracker.features.transaction.*
 import okhttp3.MultipartBody
@@ -56,6 +57,7 @@ class TransactionRepository(private val apiService: ApiService) {
         status: RequestBody? = null,
         receiptImage: MultipartBody.Part? = null
     ): Response<TransactionModel> {
+        Log.d("updateTransaction", "Body: ${id} - ${walletId} - ${categoryId}")
         return apiService.updateTransaction(
             id, walletId, categoryId, amount, transactionDate, note, currency, status, receiptImage
         )
