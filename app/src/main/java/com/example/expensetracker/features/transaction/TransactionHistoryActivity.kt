@@ -375,8 +375,12 @@ class TransactionHistoryActivity : BaseActivity(R.layout.activity_transaction_hi
     }
 
     override fun onTransactionsLoaded(transactions: List<TransactionModel>) {
+        val sorted = transactions.sortedWith(
+            compareByDescending<TransactionModel> { it.transactionDate.take(10) }
+                .thenByDescending { it.createdAt ?: "" }
+        )
         allTransactions.clear()
-        allTransactions.addAll(transactions)
+        allTransactions.addAll(sorted)
 
         // Tính tổng thu, tổng chi
         var totalIn = 0.0
